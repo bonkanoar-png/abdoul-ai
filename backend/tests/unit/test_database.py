@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from app.core.config import Settings
 from app.infrastructure.database.base import Base
 from app.infrastructure.database.engine import engine
+from app.infrastructure.database import models
 from app.infrastructure.database.session import async_session_factory
 
 
@@ -23,8 +24,14 @@ def test_engine_is_created_with_asyncpg_driver() -> None:
     assert engine.url.drivername == "postgresql+asyncpg"
 
 
-def test_declarative_base_has_no_tables() -> None:
-    assert list(Base.metadata.tables) == []
+def test_declarative_base_contains_portfolio_models() -> None:
+    assert set(Base.metadata.tables) == {
+        "experiences",
+        "profiles",
+        "project_skills",
+        "projects",
+        "skills",
+    }
 
 
 def test_session_factory_yields_async_session() -> None:
