@@ -2,6 +2,7 @@
 
 from functools import lru_cache
 from typing import Annotated, Literal
+from urllib.parse import urlparse
 
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -31,6 +32,7 @@ class Settings(BaseSettings):
     postgres_password: SecretStr = SecretStr("change-me-local-only")
     postgres_host: str = "postgres"
     postgres_port: Annotated[int, Field(ge=1, le=65535)] = 5432
+    database_url: str = "postgresql+asyncpg://abdoul_ai:change-me-local-only@postgres:5432/abdoul_ai"
     redis_host: str = "redis"
     redis_port: Annotated[int, Field(ge=1, le=65535)] = 6379
     healthcheck_timeout_seconds: Annotated[float, Field(gt=0)] = 2.0
@@ -43,6 +45,15 @@ class Settings(BaseSettings):
             raise ValueError("API_V1_PREFIX must start with '/'.")
         if value != "/" and value.endswith("/"):
             raise ValueError("API_V1_PREFIX must not end with '/'.")
+        return value
+
+    @field_validator("database_url")
+    @classmethod
+    def validate_database_url(cls, value: str) -> str:
+        """Require the async PostgreSQL driver used by the database engine."""
+        parsed_url = urlparse(value)
+        if parsed_url.scheme != "postgresql+asyncpg" or not parsed_url.hostname:
+            raise ValueError("DATABASE_URL must use postgresql+asyncpg and include a host.")
         return value
 
 
