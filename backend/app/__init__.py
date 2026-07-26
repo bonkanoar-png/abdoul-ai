@@ -1,0 +1,1 @@
+"""Abdoul AI application package."""
