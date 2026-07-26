@@ -3,7 +3,7 @@
 from functools import lru_cache
 from typing import Annotated, Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,6 +26,14 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
     backend_host: str = "0.0.0.0"
     backend_port: Annotated[int, Field(ge=1, le=65535)] = 8000
+    postgres_db: str = "abdoul_ai"
+    postgres_user: str = "abdoul_ai"
+    postgres_password: SecretStr = SecretStr("change-me-local-only")
+    postgres_host: str = "postgres"
+    postgres_port: Annotated[int, Field(ge=1, le=65535)] = 5432
+    redis_host: str = "redis"
+    redis_port: Annotated[int, Field(ge=1, le=65535)] = 6379
+    healthcheck_timeout_seconds: Annotated[float, Field(gt=0)] = 2.0
 
     @field_validator("api_v1_prefix")
     @classmethod
