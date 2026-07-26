@@ -1,0 +1,8 @@
+name: abdoul-ai
+
+# LOT 3 only: shared local-development Docker network.
+# Application and infrastructure services are intentionally introduced in later lots.
+networks:
+  abdoul-ai-network:
+    name: abdoul-ai-network
+    driver: bridge

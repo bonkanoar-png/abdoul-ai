@@ -1,0 +1,37 @@
+# Version control and local environment
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+
+# Python
+.venv
+venv
+env
+__pycache__
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+build
+dist
+*.egg-info
+
+# Node.js / Next.js
+node_modules
+.next
+out
+coverage
+*.tsbuildinfo
+
+# Logs and editor files
+*.log
+logs
+.vscode
+.idea
+*.swp
+*.swo
+*~
