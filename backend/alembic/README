@@ -1,0 +1,9 @@
+# Alembic migrations
+
+This directory contains the asynchronous Alembic environment for Abdoul AI.
+
+The migration URL is loaded from `DATABASE_URL` through `app.core.config.Settings`;
+it is intentionally not stored in `alembic.ini`.
+
+Run commands from `backend/`, with `DATABASE_URL` set for the target PostgreSQL
+instance. No revision is created by this foundation.
