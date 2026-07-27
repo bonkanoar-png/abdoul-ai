@@ -1,42 +1,18 @@
 """Public response schemas for the portfolio API."""
 
-from datetime import date, datetime
+from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
+
+from app.api.schemas.experience import ExperienceResponse as ExperienceSchema
+from app.api.schemas.skill import SkillResponse as SkillSchema
 
 
 class PortfolioSchema(BaseModel):
     """Base schema configured to read explicitly selected ORM attributes."""
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class SkillSchema(PortfolioSchema):
-    """A technical or domain skill."""
-
-    id: UUID
-    name: str
-    category: str
-    sort_order: int
-    created_at: datetime
-    updated_at: datetime
-
-
-class ExperienceSchema(PortfolioSchema):
-    """A professional experience."""
-
-    id: UUID
-    profile_id: UUID
-    company: str
-    role: str
-    description: str
-    start_date: date
-    end_date: date | None
-    is_current: bool
-    sort_order: int
-    created_at: datetime
-    updated_at: datetime
 
 
 class ProjectSchema(PortfolioSchema):

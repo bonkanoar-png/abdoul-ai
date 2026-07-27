@@ -1,66 +1,12 @@
 """Application DTOs for the public portfolio."""
 
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import datetime
 from uuid import UUID
 
-from app.domain.entities.portfolio import Experience, Portfolio, Project, Skill
-
-
-@dataclass(frozen=True, slots=True)
-class SkillDTO:
-    """Application representation of a portfolio skill."""
-
-    id: UUID
-    name: str
-    category: str
-    sort_order: int
-    created_at: datetime
-    updated_at: datetime
-
-    @classmethod
-    def from_entity(cls, skill: Skill) -> "SkillDTO":
-        return cls(
-            id=skill.id,
-            name=skill.name,
-            category=skill.category,
-            sort_order=skill.sort_order,
-            created_at=skill.created_at,
-            updated_at=skill.updated_at,
-        )
-
-
-@dataclass(frozen=True, slots=True)
-class ExperienceDTO:
-    """Application representation of a professional experience."""
-
-    id: UUID
-    profile_id: UUID
-    company: str
-    role: str
-    description: str
-    start_date: date
-    end_date: date | None
-    is_current: bool
-    sort_order: int
-    created_at: datetime
-    updated_at: datetime
-
-    @classmethod
-    def from_entity(cls, experience: Experience) -> "ExperienceDTO":
-        return cls(
-            id=experience.id,
-            profile_id=experience.profile_id,
-            company=experience.company,
-            role=experience.role,
-            description=experience.description,
-            start_date=experience.start_date,
-            end_date=experience.end_date,
-            is_current=experience.is_current,
-            sort_order=experience.sort_order,
-            created_at=experience.created_at,
-            updated_at=experience.updated_at,
-        )
+from app.application.dto.experience import ExperienceDTO
+from app.application.dto.skill import SkillDTO
+from app.domain.entities.portfolio import Portfolio, Project
 
 
 @dataclass(frozen=True, slots=True)

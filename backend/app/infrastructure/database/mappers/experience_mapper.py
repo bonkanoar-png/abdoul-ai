@@ -1,6 +1,6 @@
 """Map persisted experiences to domain entities."""
 
-from app.domain.entities.portfolio import Experience as ExperienceEntity
+from app.domain.entities.experience import Experience as ExperienceEntity
 from app.infrastructure.database.models.experience import Experience as ExperienceModel
 
 

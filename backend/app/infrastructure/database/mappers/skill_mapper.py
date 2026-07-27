@@ -1,6 +1,6 @@
 """Map persisted skills to domain entities."""
 
-from app.domain.entities.portfolio import Skill as SkillEntity
+from app.domain.entities.skill import Skill as SkillEntity
 from app.infrastructure.database.models.skill import Skill as SkillModel
 
 
