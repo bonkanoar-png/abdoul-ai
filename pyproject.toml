@@ -20,6 +20,8 @@ line-ending = "auto"
 [tool.mypy]
 python_version = "3.13"
 files = ["backend/app"]
+mypy_path = "backend"
+explicit_package_bases = true
 check_untyped_defs = true
 disallow_untyped_defs = true
 no_implicit_optional = true
@@ -40,3 +42,8 @@ disable_error_code = ["name-defined"]
 [[tool.mypy.overrides]]
 module = "app.api.routes.portfolio"
 disable_error_code = ["arg-type"]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disable_error_code = ["attr-defined"]
