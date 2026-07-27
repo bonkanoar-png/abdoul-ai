@@ -100,9 +100,18 @@ Ouvrir `http://localhost:3000`.
 
 ## État de la base
 
-Alembic est configuré, mais aucune révision métier ni aucun seed ne sont fournis. Avant que le
-portfolio retourne des données, le schéma et le contenu devront être créés par une future migration
-et un futur mécanisme d'initialisation.
+La migration initiale crée le schéma portfolio complet. Depuis `backend/`, avec `DATABASE_URL`
+configurée pour la base cible :
+
+```bash
+alembic upgrade head
+python -m scripts.seed
+```
+
+La migration doit toujours être appliquée avant le seed. Le script initialise uniquement le profil
+public avec un UUID déterministe. Sa première exécution crée le profil ; les suivantes détectent le
+même identifiant et n'appliquent aucun changement. Le script ne supprime et ne remplace aucune
+donnée existante.
 
 ## Variables actives
 
