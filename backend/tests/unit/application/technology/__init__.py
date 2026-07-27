@@ -1,0 +1,1 @@
+"""Technology application tests."""

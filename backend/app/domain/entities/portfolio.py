@@ -11,7 +11,7 @@ from app.domain.exceptions.portfolio import InvalidPortfolio, InvalidProject
 
 @dataclass(frozen=True, slots=True)
 class Project:
-    """A public project and the skills used to build it."""
+    """Legacy portfolio projection preserved for API compatibility."""
 
     id: UUID
     profile_id: UUID

@@ -19,3 +19,7 @@ class InvalidProject(DomainException):
 
 class InvalidSkill(DomainException):
     """Raised when a skill has invalid required data."""
+
+
+class InvalidTechnology(DomainException):
+    """Raised when a technology has invalid required data."""

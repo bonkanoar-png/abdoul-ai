@@ -1,0 +1,1 @@
+"""Technology domain tests."""

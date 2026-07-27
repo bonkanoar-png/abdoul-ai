@@ -30,6 +30,8 @@ class PortfolioMapper:
             experiences=tuple(
                 ExperienceMapper.to_domain(experience) for experience in profile.experiences
             ),
-            projects=tuple(ProjectMapper.to_domain(project) for project in profile.projects),
+            projects=tuple(
+                ProjectMapper.to_portfolio_domain(project) for project in profile.projects
+            ),
             skills=tuple(SkillMapper.to_domain(skill) for skill in skills),
         )
