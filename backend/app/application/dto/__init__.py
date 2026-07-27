@@ -6,5 +6,6 @@ from app.application.dto.portfolio import (
     ProjectDTO,
     SkillDTO,
 )
+from app.application.dto.profile import ProfileDTO
 
-__all__ = ["ExperienceDTO", "PortfolioDTO", "ProjectDTO", "SkillDTO"]
+__all__ = ["ExperienceDTO", "PortfolioDTO", "ProfileDTO", "ProjectDTO", "SkillDTO"]
