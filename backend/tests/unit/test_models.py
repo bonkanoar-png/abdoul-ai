@@ -6,10 +6,13 @@ from app.infrastructure.database.models import Experience, Profile, Project, Pro
 
 def test_models_are_registered_in_metadata() -> None:
     assert set(Base.metadata.tables) == {
+        "certifications",
         "experiences",
+        "formations",
         "profiles",
         "project_skills",
         "projects",
+        "publications",
         "skills",
     }
 

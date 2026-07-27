@@ -1,0 +1,1 @@
+"""Certification application tests."""

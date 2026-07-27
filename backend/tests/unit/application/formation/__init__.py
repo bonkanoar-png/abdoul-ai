@@ -1,0 +1,1 @@
+"""Formation application tests."""

@@ -23,3 +23,15 @@ class InvalidSkill(DomainException):
 
 class InvalidTechnology(DomainException):
     """Raised when a technology has invalid required data."""
+
+
+class InvalidPublication(DomainException):
+    """Raised when a publication has invalid public data."""
+
+
+class InvalidCertification(DomainException):
+    """Raised when a certification has invalid public data."""
+
+
+class InvalidFormation(DomainException):
+    """Raised when a formation has invalid public data."""
