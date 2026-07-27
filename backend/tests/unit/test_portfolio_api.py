@@ -2,11 +2,13 @@
 
 import asyncio
 from datetime import UTC, date, datetime
+from typing import cast
 from uuid import UUID, uuid4
 
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.routes.portfolio import get_portfolio
 from app.infrastructure.database.models import Experience, Profile, Project, Skill
@@ -32,7 +34,9 @@ class ScalarResult:
 class SessionStub:
     """Return predetermined results for sequential execute calls."""
 
-    def __init__(self, results: list[ScalarResult] | None = None, error: Exception | None = None) -> None:
+    def __init__(
+        self, results: list[ScalarResult] | None = None, error: Exception | None = None
+    ) -> None:
         self.results = iter(results or [])
         self.error = error
         self.execute_count = 0
@@ -107,7 +111,7 @@ def build_portfolio() -> tuple[Profile, Experience, Project, Skill]:
 def test_portfolio_serializes_uuid_dates_and_loaded_relations() -> None:
     profile, experience, project, skill = build_portfolio()
     session = SessionStub([ScalarResult(profile), ScalarResult([skill])])
-    response = asyncio.run(get_portfolio(session))  # type: ignore[arg-type]
+    response = asyncio.run(get_portfolio(cast(AsyncSession, session)))
 
     payload = response.model_dump(mode="json")
     assert UUID(payload["profile"]["id"]) == profile.id
@@ -123,7 +127,7 @@ def test_portfolio_returns_404_when_profile_is_absent() -> None:
     session = SessionStub([ScalarResult(None)])
 
     with pytest.raises(HTTPException) as raised:
-        asyncio.run(get_portfolio(session))  # type: ignore[arg-type]
+        asyncio.run(get_portfolio(cast(AsyncSession, session)))
 
     assert raised.value.status_code == 404
     assert raised.value.detail == "Portfolio not found."
@@ -134,7 +138,7 @@ def test_portfolio_returns_generic_500_for_database_errors() -> None:
     session = SessionStub(error=SQLAlchemyError("private database detail"))
 
     with pytest.raises(HTTPException) as raised:
-        asyncio.run(get_portfolio(session))  # type: ignore[arg-type]
+        asyncio.run(get_portfolio(cast(AsyncSession, session)))
 
     assert raised.value.status_code == 500
     assert raised.value.detail == "Unable to load portfolio."

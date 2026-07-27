@@ -20,7 +20,7 @@ export function ExperienceList({ experiences }: ExperienceListProps) {
   }
 
   return (
-    <section className="border-y border-line bg-surface py-24 sm:py-32">
+    <section className="border-line bg-surface border-y py-24 sm:py-32">
       <Container>
         <SectionHeading
           eyebrow="Parcours"
@@ -28,13 +28,13 @@ export function ExperienceList({ experiences }: ExperienceListProps) {
           description="Une trajectoire construite autour de produits clairs, robustes et accessibles."
         />
 
-        <ol className="mt-14 divide-y divide-line border-y border-line">
+        <ol className="divide-line border-line mt-14 divide-y border-y">
           {experiences.map((experience) => (
             <li
               className="grid gap-5 py-8 md:grid-cols-[0.7fr_1fr_1.5fr] md:gap-8"
               key={experience.id}
             >
-              <p className="text-sm font-semibold text-accent-strong">
+              <p className="text-accent-strong text-sm font-semibold">
                 {formatDate(experience.start_date)} —{" "}
                 {experience.is_current
                   ? "Aujourd’hui"
@@ -43,12 +43,10 @@ export function ExperienceList({ experiences }: ExperienceListProps) {
                     : ""}
               </p>
               <div>
-                <h3 className="text-xl font-bold tracking-[-0.03em] text-ink">
-                  {experience.role}
-                </h3>
-                <p className="mt-1 text-sm font-semibold text-muted">{experience.company}</p>
+                <h3 className="text-ink text-xl font-bold tracking-[-0.03em]">{experience.role}</h3>
+                <p className="text-muted mt-1 text-sm font-semibold">{experience.company}</p>
               </div>
-              <p className="leading-7 text-muted">{experience.description}</p>
+              <p className="text-muted leading-7">{experience.description}</p>
             </li>
           ))}
         </ol>

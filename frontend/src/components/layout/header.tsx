@@ -11,7 +11,7 @@ export function Header() {
     <header className="absolute inset-x-0 top-0 z-20">
       <Container className="flex min-h-20 items-center justify-between gap-5 sm:min-h-24">
         <a
-          className="text-lg font-bold tracking-[-0.04em] text-ink focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+          className="text-ink focus-visible:outline-ink text-lg font-bold tracking-[-0.04em] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4"
           href="#accueil"
           aria-label="Abdoul AI — Retour à l’accueil"
         >
@@ -21,7 +21,7 @@ export function Header() {
         <nav className="hidden items-center gap-7 md:flex" aria-label="Navigation principale">
           {navigation.map((item) => (
             <a
-              className="text-sm font-medium text-muted transition hover:text-ink focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+              className="text-muted hover:text-ink focus-visible:outline-ink text-sm font-medium transition focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4"
               href={item.href}
               key={item.href}
             >

@@ -5,9 +5,9 @@ import asyncio
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from app.core.config import Settings
+from app.infrastructure.database import models
 from app.infrastructure.database.base import Base
 from app.infrastructure.database.engine import engine
-from app.infrastructure.database import models
 from app.infrastructure.database.session import async_session_factory
 
 

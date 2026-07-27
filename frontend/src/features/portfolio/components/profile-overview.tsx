@@ -12,18 +12,14 @@ export function ProfileOverview({ profile }: ProfileOverviewProps) {
       <Container>
         <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent-strong">
+            <p className="text-accent-strong text-xs font-bold tracking-[0.2em] uppercase">
               Profil
             </p>
-            <p className="mt-4 text-sm font-semibold uppercase tracking-[0.12em] text-muted">
+            <p className="text-muted mt-4 text-sm font-semibold tracking-[0.12em] uppercase">
               {profile.location}
             </p>
           </div>
-          <SectionHeading
-            eyebrow={profile.name}
-            title={profile.title}
-            description={profile.bio}
-          />
+          <SectionHeading eyebrow={profile.name} title={profile.title} description={profile.bio} />
         </div>
       </Container>
     </section>

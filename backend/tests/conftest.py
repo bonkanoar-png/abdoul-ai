@@ -1,17 +1,16 @@
 """Shared test fixtures for the backend test suite."""
 
 import asyncio
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 from datetime import UTC, date, datetime
-from typing import Any
 from uuid import uuid4
 
 import httpx
 import pytest
 from fastapi import FastAPI
 
-from app.main import app as application
 from app.infrastructure.database.models import Experience, Profile, Project, Skill
+from app.main import app as application
 
 
 class ASGITestClient:
@@ -149,8 +148,12 @@ def portfolio_entities() -> tuple[Profile, Experience, Project, Skill]:
 
 
 @pytest.fixture
-def session_stub_factory() -> Any:
+def session_stub_factory() -> Callable[
+    [list[object] | None, Exception | None],
+    AsyncSessionStub,
+]:
     """Build async session stubs without importing the conftest module."""
+
     def build(
         values: list[object] | None = None,
         error: Exception | None = None,
@@ -162,10 +165,13 @@ def session_stub_factory() -> Any:
 
 
 @pytest.fixture
-def override_dependency(app: FastAPI) -> Iterator[Any]:
+def override_dependency(
+    app: FastAPI,
+) -> Iterator[Callable[[Callable[..., object], object], None]]:
     """Provide a helper that overrides and then restores FastAPI dependencies."""
-    def apply(dependency: Any, value: Any) -> None:
-        async def dependency_override() -> AsyncIterator[Any]:
+
+    def apply(dependency: Callable[..., object], value: object) -> None:
+        async def dependency_override() -> AsyncIterator[object]:
             yield value
 
         app.dependency_overrides[dependency] = dependency_override

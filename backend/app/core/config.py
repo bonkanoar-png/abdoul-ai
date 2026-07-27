@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 AppEnvironment = Literal["development", "test", "production"]
 
 
@@ -32,7 +31,9 @@ class Settings(BaseSettings):
     postgres_password: SecretStr = SecretStr("change-me-local-only")
     postgres_host: str = "postgres"
     postgres_port: Annotated[int, Field(ge=1, le=65535)] = 5432
-    database_url: str = "postgresql+asyncpg://abdoul_ai:change-me-local-only@postgres:5432/abdoul_ai"
+    database_url: str = (
+        "postgresql+asyncpg://abdoul_ai:change-me-local-only@postgres:5432/abdoul_ai"
+    )
     redis_host: str = "redis"
     redis_port: Annotated[int, Field(ge=1, le=65535)] = 6379
     healthcheck_timeout_seconds: Annotated[float, Field(gt=0)] = 2.0

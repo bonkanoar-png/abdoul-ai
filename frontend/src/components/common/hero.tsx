@@ -4,29 +4,29 @@ import { Container } from "@/components/ui/container";
 export function Hero() {
   return (
     <section
-      className="relative isolate flex min-h-[46rem] items-center overflow-hidden pb-20 pt-32 sm:pt-36"
+      className="relative isolate flex min-h-[46rem] items-center overflow-hidden pt-32 pb-20 sm:pt-36"
       id="accueil"
     >
       <div
-        className="pointer-events-none absolute -right-28 top-24 -z-10 size-[24rem] rounded-full bg-accent-soft blur-3xl sm:size-[34rem]"
+        className="bg-accent-soft pointer-events-none absolute top-24 -right-28 -z-10 size-[24rem] rounded-full blur-3xl sm:size-[34rem]"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute -left-48 bottom-0 -z-10 size-[25rem] rounded-full bg-warm-soft blur-3xl"
+        className="bg-warm-soft pointer-events-none absolute bottom-0 -left-48 -z-10 size-[25rem] rounded-full blur-3xl"
         aria-hidden="true"
       />
 
       <Container className="grid items-center gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
         <div>
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-surface/70 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-muted backdrop-blur">
-            <span className="size-2 rounded-full bg-accent" aria-hidden="true" />
+          <p className="border-line bg-surface/70 text-muted mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold tracking-[0.18em] uppercase backdrop-blur">
+            <span className="bg-accent size-2 rounded-full" aria-hidden="true" />
             Intelligence claire, impact réel
           </p>
-          <h1 className="max-w-4xl text-balance text-5xl font-bold leading-[0.98] tracking-[-0.065em] text-ink sm:text-6xl lg:text-7xl">
+          <h1 className="text-ink max-w-4xl text-5xl leading-[0.98] font-bold tracking-[-0.065em] text-balance sm:text-6xl lg:text-7xl">
             L’IA, conçue pour rester{" "}
-            <span className="font-serif font-normal italic text-accent-strong">humaine.</span>
+            <span className="text-accent-strong font-serif font-normal italic">humaine.</span>
           </h1>
-          <p className="mt-7 max-w-2xl text-pretty text-lg leading-8 text-muted sm:text-xl">
+          <p className="text-muted mt-7 max-w-2xl text-lg leading-8 text-pretty sm:text-xl">
             Abdoul AI imagine des expériences numériques sobres et accessibles, où la technologie
             s’efface derrière des interactions simples et utiles.
           </p>
@@ -39,20 +39,20 @@ export function Hero() {
         </div>
 
         <div className="relative mx-auto w-full max-w-md lg:max-w-none" aria-hidden="true">
-          <div className="aspect-square rounded-[2.5rem] border border-white/70 bg-surface/75 p-5 shadow-[0_32px_90px_rgba(40,56,50,0.12)] backdrop-blur sm:p-7">
-            <div className="flex h-full flex-col justify-between rounded-[1.8rem] bg-ink p-7 text-canvas sm:p-9">
+          <div className="bg-surface/75 aspect-square rounded-[2.5rem] border border-white/70 p-5 shadow-[0_32px_90px_rgba(40,56,50,0.12)] backdrop-blur sm:p-7">
+            <div className="bg-ink text-canvas flex h-full flex-col justify-between rounded-[1.8rem] p-7 sm:p-9">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-[0.2em] text-canvas/55">
+                <span className="text-canvas/55 text-xs font-bold tracking-[0.2em] uppercase">
                   Abdoul AI
                 </span>
-                <span className="size-3 rounded-full bg-accent-light shadow-[0_0_24px_rgba(130,220,180,0.8)]" />
+                <span className="bg-accent-light size-3 rounded-full shadow-[0_0_24px_rgba(130,220,180,0.8)]" />
               </div>
               <div className="space-y-4">
-                <div className="h-2 w-3/5 rounded-full bg-canvas/20" />
-                <div className="h-2 w-full rounded-full bg-canvas/10" />
-                <div className="h-2 w-4/5 rounded-full bg-canvas/10" />
+                <div className="bg-canvas/20 h-2 w-3/5 rounded-full" />
+                <div className="bg-canvas/10 h-2 w-full rounded-full" />
+                <div className="bg-canvas/10 h-2 w-4/5 rounded-full" />
               </div>
-              <p className="max-w-xs text-3xl font-semibold leading-tight tracking-[-0.04em]">
+              <p className="max-w-xs text-3xl leading-tight font-semibold tracking-[-0.04em]">
                 Comprendre.
                 <br />
                 Simplifier.

@@ -70,10 +70,7 @@ describe("apiRequest", () => {
       message: "The backend API is unavailable.",
     });
 
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(new Response("not-json", { status: 200 })),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("not-json", { status: 200 })));
     await expect(apiRequest("/health/live")).rejects.toMatchObject({
       message: "The backend API returned an invalid response.",
     });

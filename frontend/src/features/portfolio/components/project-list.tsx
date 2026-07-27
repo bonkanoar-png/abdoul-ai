@@ -41,9 +41,7 @@ export function ProjectList({ projects }: ProjectListProps) {
             return (
               <article
                 className={`flex min-h-80 flex-col justify-between rounded-[2rem] p-7 sm:p-9 ${
-                  index % 3 === 0
-                    ? "bg-ink text-canvas"
-                    : "border border-line bg-surface text-ink"
+                  index % 3 === 0 ? "bg-ink text-canvas" : "border-line bg-surface text-ink border"
                 }`}
                 key={project.id}
               >
@@ -72,7 +70,7 @@ export function ProjectList({ projects }: ProjectListProps) {
 
                 {projectUrl ? (
                   <a
-                    className="mt-10 w-fit text-sm font-bold underline decoration-accent-light decoration-2 underline-offset-4 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4"
+                    className="decoration-accent-light mt-10 w-fit text-sm font-bold underline decoration-2 underline-offset-4 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4"
                     href={projectUrl}
                     rel="noreferrer"
                     target="_blank"
