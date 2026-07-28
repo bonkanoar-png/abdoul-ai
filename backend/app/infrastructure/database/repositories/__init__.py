@@ -3,6 +3,9 @@
 from app.infrastructure.database.repositories.certification_repository import (
     SQLAlchemyCertificationRepository,
 )
+from app.infrastructure.database.repositories.document_repository import (
+    SQLAlchemyDocumentRepository,
+)
 from app.infrastructure.database.repositories.experience_repository import (
     SQLAlchemyExperienceRepository,
 )
@@ -26,6 +29,7 @@ from app.infrastructure.database.repositories.technology_repository import (
 
 __all__ = [
     "SQLAlchemyCertificationRepository",
+    "SQLAlchemyDocumentRepository",
     "SQLAlchemyExperienceRepository",
     "SQLAlchemyFormationRepository",
     "SQLAlchemyPortfolioRepository",

@@ -1,6 +1,7 @@
 """Framework-independent application data transfer objects."""
 
 from app.application.dto.certification import CertificationDTO
+from app.application.dto.document import DocumentDTO
 from app.application.dto.experience import ExperienceDTO
 from app.application.dto.formation import FormationDTO
 from app.application.dto.portfolio import PortfolioDTO
@@ -12,6 +13,7 @@ from app.application.dto.technology import TechnologyDTO
 
 __all__ = [
     "CertificationDTO",
+    "DocumentDTO",
     "ExperienceDTO",
     "FormationDTO",
     "PortfolioDTO",

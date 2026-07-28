@@ -1,6 +1,7 @@
 """Explicit mappings from SQLAlchemy models to domain entities."""
 
 from app.infrastructure.database.mappers.certification_mapper import CertificationMapper
+from app.infrastructure.database.mappers.document_mapper import DocumentMapper
 from app.infrastructure.database.mappers.experience_mapper import ExperienceMapper
 from app.infrastructure.database.mappers.formation_mapper import FormationMapper
 from app.infrastructure.database.mappers.portfolio_mapper import PortfolioMapper
@@ -12,6 +13,7 @@ from app.infrastructure.database.mappers.technology_mapper import TechnologyMapp
 
 __all__ = [
     "CertificationMapper",
+    "DocumentMapper",
     "ExperienceMapper",
     "FormationMapper",
     "PortfolioMapper",

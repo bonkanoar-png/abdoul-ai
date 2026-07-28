@@ -35,3 +35,7 @@ class InvalidCertification(DomainException):
 
 class InvalidFormation(DomainException):
     """Raised when a formation has invalid public data."""
+
+
+class InvalidDocument(DomainException):
+    """Raised when document metadata violates a business invariant."""

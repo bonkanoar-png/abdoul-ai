@@ -1,6 +1,7 @@
 """Repository contracts required by the domain."""
 
 from app.domain.repositories.certification import CertificationRepository
+from app.domain.repositories.document import DocumentRepository
 from app.domain.repositories.experience import ExperienceRepository
 from app.domain.repositories.formation import FormationRepository
 from app.domain.repositories.portfolio import PortfolioRepository
@@ -14,6 +15,7 @@ __all__ = [
     "ExperienceRepository",
     "FormationRepository",
     "CertificationRepository",
+    "DocumentRepository",
     "PortfolioRepository",
     "ProfileRepository",
     "ProjectRepository",

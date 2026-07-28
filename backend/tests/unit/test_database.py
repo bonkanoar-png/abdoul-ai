@@ -27,6 +27,7 @@ def test_engine_is_created_with_asyncpg_driver() -> None:
 def test_declarative_base_contains_portfolio_models() -> None:
     assert set(Base.metadata.tables) == {
         "certifications",
+        "documents",
         "experiences",
         "formations",
         "profiles",
