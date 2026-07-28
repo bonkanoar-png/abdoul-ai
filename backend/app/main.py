@@ -7,6 +7,7 @@ Run locally with:
 from fastapi import FastAPI
 
 from app.api.routes.certification import router as certification_router
+from app.api.routes.conversation import router as conversation_router
 from app.api.routes.document import router as document_router
 from app.api.routes.experience import router as experience_router
 from app.api.routes.formation import router as formation_router
@@ -40,6 +41,7 @@ def create_application() -> FastAPI:
     application.include_router(publication_router, prefix=settings.api_v1_prefix)
     application.include_router(certification_router, prefix=settings.api_v1_prefix)
     application.include_router(document_router, prefix=settings.api_v1_prefix)
+    application.include_router(conversation_router, prefix=settings.api_v1_prefix)
     return application
 
 

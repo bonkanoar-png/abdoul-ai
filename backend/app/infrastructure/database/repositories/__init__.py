@@ -3,6 +3,9 @@
 from app.infrastructure.database.repositories.certification_repository import (
     SQLAlchemyCertificationRepository,
 )
+from app.infrastructure.database.repositories.conversation_repository import (
+    SQLAlchemyConversationRepository,
+)
 from app.infrastructure.database.repositories.document_repository import (
     SQLAlchemyDocumentRepository,
 )
@@ -11,6 +14,9 @@ from app.infrastructure.database.repositories.experience_repository import (
 )
 from app.infrastructure.database.repositories.formation_repository import (
     SQLAlchemyFormationRepository,
+)
+from app.infrastructure.database.repositories.message_repository import (
+    SQLAlchemyMessageRepository,
 )
 from app.infrastructure.database.repositories.portfolio_repository import (
     SQLAlchemyPortfolioRepository,
@@ -29,9 +35,11 @@ from app.infrastructure.database.repositories.technology_repository import (
 
 __all__ = [
     "SQLAlchemyCertificationRepository",
+    "SQLAlchemyConversationRepository",
     "SQLAlchemyDocumentRepository",
     "SQLAlchemyExperienceRepository",
     "SQLAlchemyFormationRepository",
+    "SQLAlchemyMessageRepository",
     "SQLAlchemyPortfolioRepository",
     "SQLAlchemyProfileRepository",
     "SQLAlchemyProjectRepository",

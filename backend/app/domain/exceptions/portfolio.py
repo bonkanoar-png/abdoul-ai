@@ -39,3 +39,11 @@ class InvalidFormation(DomainException):
 
 class InvalidDocument(DomainException):
     """Raised when document metadata violates a business invariant."""
+
+
+class InvalidConversation(DomainException):
+    """Raised when conversation metadata violates a business invariant."""
+
+
+class InvalidMessage(DomainException):
+    """Raised when persisted message content is invalid."""
