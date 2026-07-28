@@ -3,6 +3,17 @@
 from app.api.routes import health
 
 
+def test_health_returns_service_identity(api_client) -> None:
+    response = api_client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "ok",
+        "service": "abdoul-ai-api",
+        "version": "0.2.0",
+    }
+
+
 def test_liveness_returns_ok(api_client) -> None:
     response = api_client.get("/health/live")
 

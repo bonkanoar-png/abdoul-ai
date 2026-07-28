@@ -35,7 +35,13 @@ def test_portfolio_404_over_asgi(
     response = api_client.get("/api/v1/portfolio")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Portfolio not found."}
+    assert response.json() == {
+        "error": {
+            "code": "RESOURCE_NOT_FOUND",
+            "message": "Portfolio not found.",
+            "details": None,
+        }
+    }
 
 
 def test_portfolio_500_hides_database_details(
@@ -49,5 +55,11 @@ def test_portfolio_500_hides_database_details(
     response = api_client.get("/api/v1/portfolio")
 
     assert response.status_code == 500
-    assert response.json() == {"detail": "Unable to load portfolio."}
+    assert response.json() == {
+        "error": {
+            "code": "HTTP_ERROR",
+            "message": "Unable to load portfolio.",
+            "details": None,
+        }
+    }
     assert "private database detail" not in response.text

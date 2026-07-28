@@ -21,9 +21,14 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "abdoul-ai"
+    app_version: str = "0.2.0"
     app_env: AppEnvironment = "development"
     debug: bool = Field(default=False, validation_alias="APP_DEBUG")
     api_v1_prefix: str = "/api/v1"
+    docs_url: str = "/docs"
+    redoc_url: str = "/redoc"
+    openapi_url: str = "/openapi.json"
+    cors_origins: list[str] = ["http://localhost:3000"]
     backend_host: str = "0.0.0.0"
     backend_port: Annotated[int, Field(ge=1, le=65535)] = 8000
     postgres_db: str = "abdoul_ai"
@@ -55,6 +60,16 @@ class Settings(BaseSettings):
         parsed_url = urlparse(value)
         if parsed_url.scheme != "postgresql+asyncpg" or not parsed_url.hostname:
             raise ValueError("DATABASE_URL must use postgresql+asyncpg and include a host.")
+        return value
+
+    @field_validator("cors_origins")
+    @classmethod
+    def validate_cors_origins(cls, value: list[str]) -> list[str]:
+        """Require explicit HTTP origins and keep wildcard credentials impossible."""
+        for origin in value:
+            parsed_origin = urlparse(origin)
+            if parsed_origin.scheme not in {"http", "https"} or not parsed_origin.netloc:
+                raise ValueError("CORS_ORIGINS entries must be absolute HTTP(S) origins.")
         return value
 
 

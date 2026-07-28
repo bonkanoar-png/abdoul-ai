@@ -17,6 +17,15 @@ quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
 
+[tool.coverage.run]
+branch = true
+source = ["backend/app"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+
 [tool.mypy]
 python_version = "3.13"
 files = ["backend/app"]

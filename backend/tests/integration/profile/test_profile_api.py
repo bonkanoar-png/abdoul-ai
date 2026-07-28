@@ -61,4 +61,10 @@ def test_get_profile_returns_404_when_absent(api_client, override_dependency) ->
     response = api_client.get("/api/v1/profile")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Profile not found."}
+    assert response.json() == {
+        "error": {
+            "code": "RESOURCE_NOT_FOUND",
+            "message": "Profile not found.",
+            "details": None,
+        }
+    }

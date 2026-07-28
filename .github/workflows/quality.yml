@@ -35,7 +35,7 @@ jobs:
         run: mypy
 
       - name: Test backend with coverage
-        run: pytest --cov=backend/app
+        run: pytest --cov=backend/app --cov-fail-under=90
 
   frontend-quality:
     runs-on: ubuntu-latest

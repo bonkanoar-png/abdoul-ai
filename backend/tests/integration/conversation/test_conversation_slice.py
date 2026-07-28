@@ -170,4 +170,10 @@ def test_messages_endpoint_returns_404_for_missing_conversation(
     response = api_client.get(f"/api/v1/conversations/{uuid4()}/messages")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Conversation not found."}
+    assert response.json() == {
+        "error": {
+            "code": "RESOURCE_NOT_FOUND",
+            "message": "Conversation not found.",
+            "details": None,
+        }
+    }

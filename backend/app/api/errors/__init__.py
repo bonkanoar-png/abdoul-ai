@@ -1,0 +1,5 @@
+"""Global API error handling."""
+
+from app.api.errors.handlers import register_error_handlers
+
+__all__ = ["register_error_handlers"]

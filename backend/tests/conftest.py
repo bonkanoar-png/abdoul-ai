@@ -19,16 +19,28 @@ class ASGITestClient:
     def __init__(self, app: FastAPI) -> None:
         self.app = app
 
-    def get(self, path: str) -> httpx.Response:
+    def request(
+        self,
+        method: str,
+        path: str,
+        *,
+        headers: dict[str, str] | None = None,
+    ) -> httpx.Response:
         async def request() -> httpx.Response:
             transport = httpx.ASGITransport(app=self.app)
             async with httpx.AsyncClient(
                 transport=transport,
                 base_url="http://testserver",
             ) as client:
-                return await client.get(path)
+                return await client.request(method, path, headers=headers)
 
         return asyncio.run(request())
+
+    def get(self, path: str) -> httpx.Response:
+        return self.request("GET", path)
+
+    def options(self, path: str, *, headers: dict[str, str]) -> httpx.Response:
+        return self.request("OPTIONS", path, headers=headers)
 
 
 class ScalarResultStub:

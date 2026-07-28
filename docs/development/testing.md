@@ -31,9 +31,25 @@ Les tests couvrent notamment :
 - les réponses `200`, `404` et `500` du portfolio ;
 - la sérialisation des UUID et dates.
 
-La couverture backend observée lors de la mise en place de la qualité est de **92 %**. Cette valeur
-est un état courant, pas une garantie permanente ; la commande de couverture reste la source de
-vérité.
+La couverture backend observée est de **94 %**. Le quality gate impose un minimum réaliste de
+**90 %** :
+
+```bash
+pytest --cov=backend/app --cov-fail-under=90
+```
+
+Les tests PostgreSQL sont activés explicitement avec une base dédiée :
+
+```bash
+TEST_DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/test_db pytest
+```
+
+Sans cette variable, les tests concernés sont ignorés proprement. Les fixtures partagées utilisent
+un schéma PostgreSQL temporaire par scénario. Les factories dans `backend/tests/factories/`
+produisent uniquement des objets Domain valides et ne remplacent pas les tests d'invariants.
+
+Des budgets de requêtes protègent les chargements `selectinload` des repositories Project et
+Conversation contre les régressions N+1.
 
 ## Frontend
 
