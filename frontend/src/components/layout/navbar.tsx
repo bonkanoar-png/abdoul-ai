@@ -1,57 +1,50 @@
-import { Button } from "@/components/ui/button";
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import { MobileMenu } from "@/components/layout/mobile-menu";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Container } from "@/components/ui/container";
-
-const navigation = [
-  { href: "#approche", label: "Approche" },
-  { href: "#principes", label: "Principes" },
-] as const;
-
-function NavigationLinks({ mobile = false }: { mobile?: boolean }) {
-  return navigation.map((item) => (
-    <a
-      className={`text-muted hover:text-foreground rounded-sm text-sm font-medium transition ${mobile ? "block px-4 py-3" : ""}`}
-      href={item.href}
-      key={item.href}
-    >
-      {item.label}
-    </a>
-  ));
-}
+import { navigationItems } from "@/lib/constants/navigation";
 
 export function Navbar() {
+  const pathname = usePathname();
+
   return (
-    <header className="absolute inset-x-0 top-0 z-20">
-      <Container className="flex min-h-20 items-center justify-between gap-4 sm:min-h-24">
-        <a
+    <header className="border-line bg-background/90 sticky inset-x-0 top-0 z-20 border-b backdrop-blur-xl">
+      <Container className="flex min-h-20 items-center justify-between gap-3">
+        <Link
           className="text-foreground rounded-sm text-lg font-bold tracking-[-0.04em]"
-          href="#accueil"
+          href="/"
           aria-label="Abdoul AI — Retour à l’accueil"
         >
           Abdoul <span className="text-accent">AI</span>
-        </a>
+        </Link>
 
-        <nav className="hidden items-center gap-7 md:flex" aria-label="Navigation principale">
-          <NavigationLinks />
+        <nav className="hidden items-center gap-1 xl:flex" aria-label="Navigation principale">
+          {navigationItems.map((item) => {
+            const active = pathname === item.href;
+            return (
+              <Link
+                className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
+                  active
+                    ? "bg-primary text-white"
+                    : "text-muted hover:bg-secondary hover:text-foreground"
+                }`}
+                href={item.href}
+                key={item.href}
+                aria-current={active ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button className="hidden sm:inline-flex" href="#decouvrir" size="sm">
-            Découvrir
-          </Button>
-          <details className="relative md:hidden">
-            <summary className="border-line bg-surface text-foreground flex min-h-11 cursor-pointer list-none items-center rounded-full border px-4 text-sm font-semibold">
-              Menu
-            </summary>
-            <nav
-              className="border-line bg-surface absolute top-14 right-0 min-w-48 rounded-2xl border p-2 shadow-xl"
-              aria-label="Navigation mobile"
-            >
-              <NavigationLinks mobile />
-              <Button className="mt-2 w-full" href="#decouvrir" size="sm">
-                Découvrir
-              </Button>
-            </nav>
-          </details>
+          <ThemeToggle />
+          <MobileMenu items={navigationItems} pathname={pathname} />
         </div>
       </Container>
     </header>

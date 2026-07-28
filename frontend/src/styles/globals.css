@@ -61,6 +61,44 @@
   scroll-behavior: smooth;
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0e1412;
+  --surface: #17201d;
+  --foreground: #f2f7f4;
+  --primary: #84d6b1;
+  --secondary: #25322d;
+  --muted: #a9b8b1;
+  --accent: #84d6b1;
+  --danger: #ff8a80;
+  --success: #71d9a8;
+  --line: #34443d;
+  --accent-strong: #a3e5c7;
+  --accent-light: #84d6b1;
+  --accent-soft: #1c4938;
+  --warm-soft: #473827;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --background: #0e1412;
+    --surface: #17201d;
+    --foreground: #f2f7f4;
+    --primary: #84d6b1;
+    --secondary: #25322d;
+    --muted: #a9b8b1;
+    --accent: #84d6b1;
+    --danger: #ff8a80;
+    --success: #71d9a8;
+    --line: #34443d;
+    --accent-strong: #a3e5c7;
+    --accent-light: #84d6b1;
+    --accent-soft: #1c4938;
+    --warm-soft: #473827;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -75,6 +113,9 @@ body {
   color: var(--foreground);
   font-family: var(--font-body);
   text-rendering: optimizeLegibility;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
 button,
