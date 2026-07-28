@@ -1,17 +1,32 @@
 import type { Metadata } from "next";
 
-import "./globals.css";
+import { Footer } from "@/components/layout/footer";
+import { Navbar } from "@/components/layout/navbar";
+
+import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "Abdoul AI — Une intelligence claire et humaine",
-  description:
-    "Abdoul AI conçoit des expériences numériques sobres, accessibles et centrées sur l’humain.",
+  title: {
+    default: "Abdoul AI — Data Scientist & AI Engineer",
+    template: "%s | Abdoul AI",
+  },
+  description: "Portfolio professionnel d’Abdoul, Data Scientist, AI Engineer et Backend Engineer.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fr">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <a
+          className="bg-primary text-surface fixed top-3 left-3 z-50 -translate-y-20 rounded-full px-4 py-2 font-semibold transition focus:translate-y-0"
+          href="#contenu-principal"
+        >
+          Aller au contenu
+        </a>
+        <Navbar />
+        <div id="contenu-principal">{children}</div>
+        <Footer />
+      </body>
     </html>
   );
 }
