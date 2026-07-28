@@ -7,13 +7,14 @@ ultérieures.
 
 ### Backend
 
-- API de liveness et readiness ;
-- API portfolio agrégée en lecture seule ;
-- schémas Pydantic publics ;
-- modèle de données initial ;
-- accès PostgreSQL asynchrone ;
+- API de santé, portfolio et ressources publiques en lecture seule ;
+- Domain, contrats de repositories, use cases, services et DTO ;
+- repositories SQLAlchemy async et mappers ORM vers Domain ;
+- schémas Pydantic et erreurs API normalisées ;
+- migrations Alembic du schéma Backend Core ;
+- seed idempotent du profil public ;
+- conversations et messages persistés en lecture seule ;
 - vérification de disponibilité Redis ;
-- configuration Alembic sans migration métier.
 
 ### Frontend
 
@@ -33,11 +34,10 @@ ultérieures.
 
 ## Limites actuelles
 
-- aucune migration métier ;
-- aucun seed ;
+- aucune commande d'écriture via l'API ;
+- aucun seed de contenu complet au-delà du profil ;
 - aucune authentification ;
 - aucune interface d'administration ;
-- aucune écriture via l'API ;
 - aucune logique de cache Redis ;
 - aucun déploiement de production.
 
@@ -55,5 +55,5 @@ Billing
 Marketplace
 ```
 
-Les dossiers `domain`, `application`, `llm`, `rag` et `storage` sont des emplacements préparatoires.
-Ils ne doivent pas être interprétés comme la preuve de fonctionnalités correspondantes.
+Les couches `domain` et `application` sont implémentées pour le Backend Core. Les emplacements
+`llm`, `rag` et `storage` restent préparatoires et ne prouvent aucune fonctionnalité IA.

@@ -1,5 +1,7 @@
 # Installation locale
 
+Toutes les commandes partent de la racine du dépôt, sauf indication contraire.
+
 ## Prérequis
 
 - Python 3.13 ;
@@ -7,9 +9,9 @@
 - Docker avec Docker Compose ;
 - Git.
 
-Toutes les commandes suivantes partent de la racine du dépôt, sauf indication contraire.
+## Backend
 
-## 1. Backend Python
+Créer l'environnement Python et installer les dépendances de développement :
 
 ```bash
 python3.13 -m venv .venv
@@ -17,76 +19,63 @@ source .venv/bin/activate
 python -m pip install -r backend/requirements-dev.txt
 ```
 
-Sous Windows PowerShell, l'activation équivalente est :
+Sous PowerShell, utiliser `.venv\Scripts\Activate.ps1`.
 
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-## 2. Variables d'environnement
-
-Créer les fichiers locaux à partir des exemples :
+Créer les fichiers d'environnement locaux :
 
 ```bash
 cp .env.example .env
 cp frontend/.env.example frontend/.env.local
 ```
 
-Ces fichiers sont ignorés par Git. Ne jamais y copier de secret destiné à être versionné.
+Les fichiers `.env` sont ignorés par Git. Ne jamais y placer de secret destiné à être versionné.
 
-### Exécution sur la machine hôte
-
-Compose expose PostgreSQL et Redis sur `localhost`, tandis que les valeurs `postgres` et `redis`
-correspondent aux noms DNS internes du réseau Docker. Pour lancer FastAPI directement sur la
-machine, utiliser notamment :
-
-```dotenv
-DATABASE_URL=postgresql+asyncpg://abdoul_ai:change-me-local-only@localhost:5432/abdoul_ai
-POSTGRES_HOST=localhost
-REDIS_HOST=localhost
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-`Settings` cherche `.env` dans le répertoire courant. La commande Uvicorn documentée est lancée
-depuis la racine et utilise donc le fichier `.env` racine.
-
-## 3. Infrastructure
+## Infrastructure
 
 ```bash
 docker compose up -d
 docker compose ps
 ```
 
-Services démarrés :
+Compose démarre PostgreSQL/pgvector sur le port 5432 et Redis sur le port 6379. FastAPI et Next.js
+ne sont pas conteneurisés.
 
-- PostgreSQL/pgvector sur le port 5432 ;
-- Redis sur le port 6379.
+Pour lancer le backend sur l'hôte, utiliser notamment :
 
-FastAPI et Next.js ne sont pas des services Compose dans l'état actuel.
-
-Pour arrêter l'infrastructure :
-
-```bash
-docker compose down
+```dotenv
+DATABASE_URL=postgresql+asyncpg://abdoul_ai:change-me-local-only@localhost:5432/abdoul_ai
+POSTGRES_HOST=localhost
+REDIS_HOST=localhost
 ```
 
-## 4. Backend
+## Migrations et seed
+
+Depuis `backend/` :
+
+```bash
+cd backend
+alembic upgrade head
+python -m scripts.seed
+```
+
+Les révisions Alembic créent le schéma applicatif par étapes. Le seed crée uniquement le profil
+public avec un identifiant déterministe ; il est idempotent et ne remplace aucune donnée existante.
+
+Pour inspecter ou revenir d'une révision :
+
+```bash
+alembic current
+alembic downgrade -1
+alembic upgrade head
+```
+
+## Lancer les applications
+
+Depuis la racine :
 
 ```bash
 uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port 8000 --reload
 ```
-
-Points de contrôle :
-
-```text
-http://localhost:8000/docs
-http://localhost:8000/health/live
-http://localhost:8000/health/ready
-```
-
-La readiness répond `503` si PostgreSQL ou Redis n'est pas accessible.
-
-## 5. Frontend
 
 Dans un second terminal :
 
@@ -96,63 +85,48 @@ npm ci
 npm run dev
 ```
 
-Ouvrir `http://localhost:3000`.
+Points de contrôle :
 
-## État de la base
+- API : `http://localhost:8000` ;
+- OpenAPI : `http://localhost:8000/docs` ;
+- liveness : `http://localhost:8000/health/live` ;
+- readiness : `http://localhost:8000/health/ready` ;
+- frontend : `http://localhost:3000`.
 
-La migration initiale crée le schéma portfolio complet. Depuis `backend/`, avec `DATABASE_URL`
-configurée pour la base cible :
+La readiness retourne `503` si PostgreSQL ou Redis est indisponible.
+
+## Validation locale
+
+Depuis la racine :
 
 ```bash
-alembic upgrade head
-python -m scripts.seed
+ruff check backend
+ruff format --check backend
+mypy backend/app backend/tests
+pytest --cov=backend/app
 ```
 
-La migration doit toujours être appliquée avant le seed. Le script initialise uniquement le profil
-public avec un UUID déterministe. Sa première exécution crée le profil ; les suivantes détectent le
-même identifiant et n'appliquent aucun changement. Le script ne supprime et ne remplace aucune
-donnée existante.
+Depuis `frontend/` :
 
-## Variables actives
+```bash
+npm run format:check
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
 
-### Backend
+## Variables principales
 
 | Variable | Rôle |
 | --- | --- |
-| `APP_NAME` | Nom exposé par FastAPI |
-| `APP_ENV` | Environnement `development`, `test` ou `production` |
-| `APP_DEBUG` | Mode debug FastAPI |
-| `API_V1_PREFIX` | Préfixe de l'API portfolio |
-| `BACKEND_HOST`, `BACKEND_PORT` | Valeurs de configuration du backend |
-| `DATABASE_URL` | URL SQLAlchemy PostgreSQL async |
-| `POSTGRES_*` | Paramètres du contrôle de santé PostgreSQL |
+| `APP_NAME`, `APP_VERSION`, `APP_ENV`, `APP_DEBUG` | Identité et mode de l'API |
+| `API_V1_PREFIX` | Préfixe des routes métier, `/api/v1` par défaut |
+| `DATABASE_URL` | URL SQLAlchemy PostgreSQL utilisant `postgresql+asyncpg` |
+| `POSTGRES_*` | Paramètres PostgreSQL et contrôle de santé |
 | `REDIS_HOST`, `REDIS_PORT` | Paramètres du contrôle Redis |
-| `HEALTHCHECK_TIMEOUT_SECONDS` | Timeout des dépendances |
+| `CORS_ORIGINS` | Origines HTTP autorisées |
+| `NEXT_PUBLIC_API_URL` | URL de l'API appelée côté serveur par Next.js |
 
-`BACKEND_HOST` et `BACKEND_PORT` ne remplacent pas automatiquement les options de la commande
-Uvicorn.
-
-### Frontend
-
-| Variable | Rôle |
-| --- | --- |
-| `NEXT_PUBLIC_API_URL` | URL de base utilisée par le client API serveur |
-
-### Variables réservées
-
-Les variables suivantes figurent dans l'exemple racine, mais aucune fonctionnalité active ne les
-utilise :
-
-```text
-REDIS_URL
-SECRET_KEY
-JWT_ALGORITHM
-ACCESS_TOKEN_EXPIRE_MINUTES
-OPENAI_API_KEY
-MISTRAL_API_KEY
-ANTHROPIC_API_KEY
-STORAGE_PROVIDER
-```
-
-Elles ne sont pas nécessaires au fonctionnement actuel. Ne jamais versionner de mot de passe réel,
-de clé d'API, de clé privée ou de `SECRET_KEY`.
+Les clés d'API IA présentes dans l'exemple racine sont réservées à de futures phases et ne sont pas
+requises actuellement.

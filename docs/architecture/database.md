@@ -1,76 +1,60 @@
 # Base de données
 
-Abdoul AI utilise PostgreSQL avec SQLAlchemy 2 en mode asynchrone et le pilote asyncpg.
+Abdoul AI utilise PostgreSQL 17 avec SQLAlchemy 2 asynchrone et le pilote asyncpg.
 
-## Tables
+## Tables actuelles
 
 ```text
 profiles
-experiences
-projects
-skills
-project_skills
+├── experiences
+├── formations
+├── projects ── project_skills ── skills
+└── documents
+
+publications
+certifications
+conversations
+└── messages
 ```
 
-## Relations
+Les relations de propriété utilisent des clés étrangères et des suppressions en cascade lorsque le
+cycle de vie de l'enfant dépend du parent. Les projets et compétences sont associés par
+`project_skills`, dont la clé primaire est composite.
 
-```text
-Profile
-├── Experiences
-└── Projects
-    └── Skills
-```
+## Modèles et Domain
 
-- Un profil possède plusieurs expériences.
-- Un profil possède plusieurs projets.
-- Un projet possède plusieurs compétences.
-- Une compétence peut être associée à plusieurs projets.
-- `project_skills` porte la relation many-to-many avec une clé primaire composite.
+Les modèles ORM représentent la persistance. Les repositories les convertissent en entités Domain
+avec des mappers dédiés ; ils ne sont pas exposés directement par l'API.
 
-La suppression d'un profil cascade vers ses expériences et projets. Les associations
-projet-compétence utilisent également des clés étrangères avec suppression en cascade.
-
-## Modèles
-
-### Profile
-
-Identité du propriétaire du portfolio : nom, titre, biographie, localisation, email et liens
-publics facultatifs.
-
-### Experience
-
-Entreprise, rôle, description, dates et ordre d'affichage. Des contraintes vérifient que la date de
-fin suit la date de début et qu'une expérience actuelle n'a pas de date de fin.
-
-### Project
-
-Slug unique, titre, résumé, description, liens facultatifs, image facultative, état mis en avant et
-ordre d'affichage.
-
-### Skill
-
-Nom unique, catégorie et ordre d'affichage.
-
-## Infrastructure locale
-
-`compose.yaml` utilise l'image `pgvector/pgvector:pg17`. Elle rend pgvector disponible dans
-l'environnement PostgreSQL, mais aucune extension, colonne vectorielle ou requête vectorielle n'est
-actuellement déclarée par le projet.
+Les lectures de relations sont explicites afin de rester compatibles avec `AsyncSession` et de
+prévenir les régressions N+1.
 
 ## Alembic
 
-Alembic est configuré dans `backend/alembic.ini` et `backend/alembic/env.py`. L'URL est lue depuis
-`DATABASE_URL` et n'est pas inscrite dans `alembic.ini`.
+Alembic est configuré dans `backend/alembic.ini` et `backend/alembic/env.py`. Les révisions
+versionnées créent successivement :
+
+1. le schéma portfolio initial ;
+2. publications et certifications ;
+3. formations ;
+4. documents ;
+5. conversations et messages.
 
 Depuis `backend/` :
 
 ```bash
 alembic current
 alembic upgrade head
+alembic downgrade -1
 ```
 
-À ce stade :
+Les migrations décrivent uniquement le schéma. Le seed idempotent du profil s'exécute séparément :
 
-- aucune migration métier n'existe dans `backend/alembic/versions` ;
-- aucun seed n'est fourni ;
-- la documentation ne suppose donc pas que les tables ou données sont déjà créées.
+```bash
+python -m scripts.seed
+```
+
+## Infrastructure locale
+
+`compose.yaml` utilise `pgvector/pgvector:pg17`. L'image rend pgvector disponible, mais le schéma
+actuel ne crée ni extension vectorielle, ni embedding, ni fonctionnalité RAG.

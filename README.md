@@ -1,89 +1,74 @@
 # Abdoul AI
 
-Abdoul AI est une fondation de portfolio moderne composée d'une interface Next.js et d'une API
-FastAPI. Le projet expose aujourd'hui un portfolio en lecture seule, des contrôles de santé et une
-chaîne complète de qualité logicielle.
+Abdoul AI est une plateforme de portfolio professionnel conçue comme une base évolutive pour de
+futurs usages d'intelligence artificielle. Elle sépare une interface Next.js d'une API FastAPI
+asynchrone, avec un domaine métier indépendant de la persistance.
 
-Le dépôt ne contient actuellement ni authentification, ni chatbot, ni RAG, ni agents IA, ni
-plateforme SaaS, ni déploiement de production.
+La phase Backend Core fournit aujourd'hui une API publique en lecture seule pour le profil, les
+expériences, formations, compétences, projets, technologies, publications, certifications,
+documents et conversations persistées. Aucun LLM, RAG ou agent n'est encore implémenté.
+
+## Fonctionnalités
+
+- portfolio public structuré et ordonné ;
+- ressources métier exposées par des endpoints dédiés ;
+- conversations et messages persistés en lecture seule ;
+- migrations Alembic et seed de profil idempotent ;
+- contrôles de santé PostgreSQL et Redis ;
+- tests unitaires, API et PostgreSQL ;
+- contrôles qualité locaux et CI GitHub Actions.
 
 ## Stack technique
 
-- **Frontend :** Next.js 16, React 19, TypeScript, App Router, Server Components et Tailwind CSS v4.
 - **Backend :** Python 3.13, FastAPI, Pydantic, SQLAlchemy 2 async et asyncpg.
-- **Données :** PostgreSQL avec l'image pgvector, Redis et Alembic.
-- **Qualité :** Ruff, mypy, pytest, Vitest, ESLint, Prettier et pre-commit.
-- **CI :** GitHub Actions sur chaque push et pull request, sans déploiement.
+- **Données :** PostgreSQL 17 avec pgvector, Redis et Alembic.
+- **Frontend :** Next.js 16, React 19, TypeScript, Server Components et Tailwind CSS v4.
+- **Qualité :** Ruff, mypy, pytest, coverage, Vitest, ESLint, Prettier et pre-commit.
+- **CI :** GitHub Actions, sans déploiement automatique.
 
 ## Architecture
 
 ```text
-Navigateur
-   |
-   v
-Next.js — Server Components
-   |
-   v
-FastAPI
-   |
-   v
-SQLAlchemy async
-   |
-   v
-PostgreSQL + pgvector
-
-Redis est utilisé uniquement par le contrôle de disponibilité.
+Next.js (Server Components)
+            |
+            v
+FastAPI API -> Application -> Domain
+                              ^
+                              |
+                Infrastructure SQLAlchemy
+                              |
+                              v
+                         PostgreSQL
 ```
 
-Le frontend et le backend restent deux applications séparées. Next.js appelle l'API depuis le
-serveur ; aucune requête portfolio n'est envoyée directement par le navigateur.
-
-## Prérequis
-
-- Python 3.13 ;
-- Node.js 24 et npm ;
-- Docker avec Docker Compose ;
-- Git.
+Les entités et contrats du Domain ne dépendent ni de FastAPI ni de SQLAlchemy. Les cas d'usage
+Application orchestrent ces contrats ; les repositories SQLAlchemy assurent leur implémentation.
 
 ## Démarrage rapide
 
-### 1. Installer le backend
+Prérequis : Python 3.13, Node.js 24, npm, Docker Compose et Git.
 
 ```bash
 python3.13 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r backend/requirements-dev.txt
-```
-
-### 2. Préparer l'environnement local
-
-```bash
 cp .env.example .env
 cp frontend/.env.example frontend/.env.local
-```
-
-Pour exécuter FastAPI sur la machine hôte, remplacer le nom d'hôte `postgres` par `localhost` dans
-`DATABASE_URL` et définir `REDIS_HOST=localhost` dans `.env`.
-
-### 3. Démarrer PostgreSQL et Redis
-
-```bash
 docker compose up -d
-docker compose ps
 ```
 
-Compose démarre uniquement PostgreSQL/pgvector et Redis. Le backend et le frontend sont lancés
-séparément.
-
-### 4. Démarrer le backend
+Pour un backend lancé sur l'hôte, définir `DATABASE_URL` avec `localhost` et
+`REDIS_HOST=localhost`, puis :
 
 ```bash
+cd backend
+alembic upgrade head
+python -m scripts.seed
+cd ..
 uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 5. Démarrer le frontend
-
-Dans un second terminal :
+Dans un autre terminal :
 
 ```bash
 cd frontend
@@ -91,40 +76,37 @@ npm ci
 npm run dev
 ```
 
-Le frontend est alors disponible sur `http://localhost:3000` et l'API sur
-`http://localhost:8000`.
+L'API est disponible sur `http://localhost:8000`, sa documentation sur `/docs`, et le frontend sur
+`http://localhost:3000`.
 
-> Aucune migration métier et aucun seed ne sont encore fournis. Les tables et données du portfolio
-> doivent exister pour que `GET /api/v1/portfolio` retourne un contenu.
-
-## Commandes principales
+## Validation
 
 ```bash
-# Backend, depuis la racine
 ruff check backend
 ruff format --check backend
 mypy backend/app backend/tests
 pytest --cov=backend/app
+pre-commit run --all-files
+```
 
-# Frontend
+```bash
 cd frontend
 npm run format:check
 npm run lint
 npm run typecheck
 npm run test
 npm run build
-
-# Tous les contrôles pre-commit
-pre-commit run --all-files
 ```
 
 ## Documentation
 
-- [Vue d'ensemble](docs/architecture/overview.md)
-- [Architecture backend](docs/architecture/backend.md)
+- [Architecture backend](docs/architecture/backend-architecture.md)
 - [Architecture frontend](docs/architecture/frontend.md)
 - [Base de données](docs/architecture/database.md)
+- [Référence API](docs/api/reference.md)
 - [Installation locale](docs/development/setup.md)
 - [Tests](docs/development/testing.md)
 - [Qualité et CI](docs/development/quality-and-ci.md)
-- [Périmètre fonctionnel actuel](docs/product/current-scope.md)
+- [Contribution](docs/development/contributing.md)
+- [Périmètre produit](docs/product/current-scope.md)
+- [Roadmap](docs/product/roadmap.md)

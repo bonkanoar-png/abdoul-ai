@@ -1,55 +1,48 @@
 # Tests
 
-Les suites backend et frontend sont indépendantes et n'utilisent aucun serveur ou service réseau
-réel.
+Les tests sont organisés par couche et n'ouvrent aucun serveur HTTP externe.
 
 ## Backend
 
-Depuis la racine, avec l'environnement virtuel activé :
+```text
+backend/tests/
+├── unit/          # entités, cas d'usage, services, schémas et infrastructure isolée
+├── integration/   # API ASGI et repositories PostgreSQL
+├── factories/     # construction d'entités Domain valides
+└── fixtures/      # sessions et schémas PostgreSQL temporaires
+```
+
+Exécuter la suite et la couverture depuis la racine :
 
 ```bash
-ruff check backend
-ruff format --check backend
-mypy backend/app backend/tests
 pytest
 pytest --cov=backend/app
 ```
 
-La suite contient des tests unitaires et des tests d'intégration ASGI :
-
-```text
-backend/tests/unit/
-backend/tests/integration/
-```
-
-Les tests couvrent notamment :
-
-- la configuration de la base ;
-- les métadonnées et relations SQLAlchemy ;
-- les schémas Pydantic ;
-- les routes health ;
-- les réponses `200`, `404` et `500` du portfolio ;
-- la sérialisation des UUID et dates.
-
-La couverture backend observée est de **94 %**. Le quality gate impose un minimum réaliste de
-**90 %** :
-
-```bash
-pytest --cov=backend/app --cov-fail-under=90
-```
-
-Les tests PostgreSQL sont activés explicitement avec une base dédiée :
+Le seuil configuré est de 90 %. Les tests PostgreSQL nécessitent une base dédiée :
 
 ```bash
 TEST_DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/test_db pytest
 ```
 
-Sans cette variable, les tests concernés sont ignorés proprement. Les fixtures partagées utilisent
-un schéma PostgreSQL temporaire par scénario. Les factories dans `backend/tests/factories/`
-produisent uniquement des objets Domain valides et ne remplacent pas les tests d'invariants.
+Sans `TEST_DATABASE_URL`, ces scénarios sont ignorés. Les fixtures créent des schémas temporaires
+isolés. Les factories créent des objets Domain et ne contournent pas leurs invariants.
 
-Des budgets de requêtes protègent les chargements `selectinload` des repositories Project et
-Conversation contre les régressions N+1.
+Les tests d'intégration couvrent notamment :
+
+- repositories SQLAlchemy et mappings ORM vers Domain ;
+- routes publiques, erreurs et sérialisation ;
+- migrations et persistance des relations ;
+- seed idempotent ;
+- budgets de requêtes protégeant les chargements contre les régressions N+1.
+
+Contrôles statiques associés :
+
+```bash
+ruff check backend
+ruff format --check backend
+mypy backend/app backend/tests
+```
 
 ## Frontend
 
@@ -62,21 +55,14 @@ npm run typecheck
 npm run build
 ```
 
-Vitest utilise Testing Library et jsdom. Les tests couvrent :
+Vitest, Testing Library et jsdom valident le client serveur, le service portfolio, les composants,
+les états vides et les erreurs. Les appels `fetch` sont simulés ; aucune API réelle n'est contactée.
 
-- le client HTTP serveur avec `fetch` simulé ;
-- le service portfolio ;
-- les composants de profil, expériences, projets et compétences ;
-- les états vides ;
-- la gestion des erreurs et des liens externes.
-
-Aucun test frontend ne contacte une API réelle. Le build Next.js valide également TypeScript et la
-construction de la route dynamique.
-
-## Exécuter tous les contrôles locaux
+## Validation complète
 
 ```bash
 pre-commit run --all-files
 ```
 
-Les hooks vérifient Ruff, le formatage Python, Prettier et ESLint sans auto-fix.
+Les hooks exécutent les vérifications Ruff, Ruff format, Prettier et ESLint sans modifier les
+fichiers.
