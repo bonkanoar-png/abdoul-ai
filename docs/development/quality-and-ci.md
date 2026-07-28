@@ -81,7 +81,9 @@ backend-quality
 frontend-quality
 ```
 
-Les caches pip et npm accélèrent l'installation. Une concurrence par branche annule les exécutions
+Le job backend démarre un service PostgreSQL éphémère, valide le cycle Alembic
+`upgrade/downgrade/upgrade`, puis exécute également les tests marqués PostgreSQL. Les caches pip et
+npm accélèrent l'installation. Une concurrence par workflow et branche annule les exécutions
 obsolètes. Les permissions sont limitées à :
 
 ```yaml
@@ -89,7 +91,8 @@ permissions:
   contents: read
 ```
 
-`quality.yml` reste disponible en déclenchement manuel.
+`quality.yml` reste disponible en déclenchement manuel et appelle le workflow canonique afin
+d'éviter la duplication des étapes.
 
 La CI ne contient aucune étape de déploiement, aucun secret personnalisé, aucune publication
 d'image et aucune intégration cloud.

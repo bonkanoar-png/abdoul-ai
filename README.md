@@ -1,5 +1,7 @@
 # Abdoul AI
 
+[![CI](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/ci.yml)
+
 Abdoul AI est une plateforme de portfolio professionnel conçue comme une base évolutive pour de
 futurs usages d'intelligence artificielle. Elle sépare une interface Next.js d'une API FastAPI
 asynchrone, avec un domaine métier indépendant de la persistance.
@@ -107,6 +109,7 @@ npm run build
 - [Installation locale](docs/development/setup.md)
 - [Tests](docs/development/testing.md)
 - [Qualité et CI](docs/development/quality-and-ci.md)
+- [CI/CD et automatisation](docs/development/ci-cd.md)
 - [Contribution](docs/development/contributing.md)
 - [Périmètre produit](docs/product/current-scope.md)
 - [Roadmap](docs/product/roadmap.md)
