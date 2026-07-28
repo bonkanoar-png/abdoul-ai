@@ -30,7 +30,7 @@ describe("apiRequest", () => {
     );
   });
 
-  it("rejects missing or unsafe API URLs before calling fetch", async () => {
+  it("rejects unsafe API URLs before calling fetch", async () => {
     vi.stubEnv("NEXT_PUBLIC_API_URL", "file:///tmp/api");
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
