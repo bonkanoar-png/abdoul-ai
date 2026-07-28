@@ -2,18 +2,45 @@
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.api.dependencies.database import get_db_session
+from app.api.dependencies.portfolio import get_portfolio_service
+from app.application.services.portfolio_service import PortfolioService
+from app.application.use_cases.get_portfolio import GetPortfolioUseCase
+from app.domain.entities.portfolio import Portfolio
+from app.infrastructure.database.mappers.portfolio_mapper import PortfolioMapper
+
+
+class FakePortfolioRepository:
+    """Return a configured portfolio without crossing the HTTP boundary."""
+
+    def __init__(
+        self,
+        portfolio: Portfolio | None = None,
+        error: Exception | None = None,
+    ) -> None:
+        self.portfolio = portfolio
+        self.error = error
+
+    async def get_portfolio(self) -> Portfolio | None:
+        if self.error is not None:
+            raise self.error
+        return self.portfolio
+
+
+def portfolio_service(
+    portfolio: Portfolio | None = None,
+    error: Exception | None = None,
+) -> PortfolioService:
+    return PortfolioService(GetPortfolioUseCase(FakePortfolioRepository(portfolio, error)))
 
 
 def test_portfolio_response_over_asgi(
     api_client,
     override_dependency,
     portfolio_entities,
-    session_stub_factory,
 ) -> None:
     profile, experience, project, skill = portfolio_entities
-    session = session_stub_factory([profile, [skill]])
-    override_dependency(get_db_session, session)
+    portfolio = PortfolioMapper.to_domain(profile, [skill])
+    override_dependency(get_portfolio_service, portfolio_service(portfolio))
 
     response = api_client.get("/api/v1/portfolio")
 
@@ -28,9 +55,8 @@ def test_portfolio_response_over_asgi(
 def test_portfolio_404_over_asgi(
     api_client,
     override_dependency,
-    session_stub_factory,
 ) -> None:
-    override_dependency(get_db_session, session_stub_factory([None]))
+    override_dependency(get_portfolio_service, portfolio_service())
 
     response = api_client.get("/api/v1/portfolio")
 
@@ -47,10 +73,11 @@ def test_portfolio_404_over_asgi(
 def test_portfolio_500_hides_database_details(
     api_client,
     override_dependency,
-    session_stub_factory,
 ) -> None:
-    session = session_stub_factory(error=SQLAlchemyError("private database detail"))
-    override_dependency(get_db_session, session)
+    override_dependency(
+        get_portfolio_service,
+        portfolio_service(error=SQLAlchemyError("private database detail")),
+    )
 
     response = api_client.get("/api/v1/portfolio")
 
