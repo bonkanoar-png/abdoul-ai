@@ -1,4 +1,5 @@
 const DEFAULT_API_URL = "http://localhost:8000";
+export const API_REQUEST_TIMEOUT_MS = 5_000;
 
 export class ApiUrlConfigurationError extends Error {
   constructor() {
