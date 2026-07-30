@@ -20,15 +20,14 @@ export function Avatar({ name, src, size = "md" }: AvatarProps) {
 
   return (
     <span
-      className={`bg-secondary text-primary inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full font-bold ${sizes[size]}`}
+      className={`bg-secondary text-primary relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full font-bold ${sizes[size]}`}
     >
       {src ? (
-        // The primitive accepts trusted or already validated image sources.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="size-full object-cover" src={src} alt={name} />
+        <Image className="object-cover" src={src} alt={name} fill sizes="80px" unoptimized />
       ) : (
         <span aria-label={name}>{initials || "?"}</span>
       )}
     </span>
   );
 }
+import Image from "next/image";

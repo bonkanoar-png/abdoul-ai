@@ -1,0 +1,32 @@
+{
+  "locale": "en",
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "experience": "Experience",
+    "skills": "Skills",
+    "projects": "Projects",
+    "publications": "Publications",
+    "certifications": "Certifications",
+    "ai": "AI",
+    "contact": "Contact"
+  },
+  "pages": {
+    "home": {
+      "title": "AI/Data/Backend Engineer",
+      "description": "I turn data and artificial intelligence into reliable products."
+    },
+    "about": {
+      "title": "About",
+      "description": "Discover Abdoul’s professional profile."
+    },
+    "projects": {
+      "title": "Projects",
+      "description": "Discover Data, AI, Backend and Web projects."
+    },
+    "ai": {
+      "title": "Ask Abdoul AI",
+      "description": "Explore Abdoul’s experience, projects and skills."
+    }
+  }
+}
