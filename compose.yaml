@@ -38,6 +38,22 @@ services:
       start_period: 5s
     restart: unless-stopped
 
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://abdoul_ai:change-me-local-only@postgres:5432/abdoul_ai
+      REDIS_HOST: redis
+    ports:
+      - "8000:8000"
+    networks:
+      - abdoul-ai-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres-data:
   redis-data:
