@@ -42,6 +42,7 @@ describe("technical SEO", () => {
       "/",
       "/about",
       "/experience",
+      "/formations",
       "/skills",
       "/projects",
       "/publications",

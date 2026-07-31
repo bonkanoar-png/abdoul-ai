@@ -4,6 +4,7 @@
     "home": "Accueil",
     "about": "À propos",
     "experience": "Expérience",
+    "formations": "Formation",
     "skills": "Compétences",
     "projects": "Projets",
     "publications": "Publications",
@@ -19,6 +20,10 @@
     "about": {
       "title": "À propos",
       "description": "Découvrez le profil professionnel d’Abdoul."
+    },
+    "formations": {
+      "title": "Formations",
+      "description": "Découvrez le parcours académique d’Abdoul."
     },
     "projects": {
       "title": "Projets",

@@ -12,6 +12,7 @@ test.describe("navigation globale", () => {
     const routes = [
       ["À propos", "/about", "Abdoul"],
       ["Expérience", "/experience", "Expérience professionnelle"],
+      ["Formation", "/formations", "Formations"],
       ["Compétences", "/skills", "Compétences techniques"],
       ["Projets", "/projects", "Projets"],
       ["Contact", "/contact", "Contact"],
