@@ -37,6 +37,13 @@ test.describe("navigation globale", () => {
           }),
         ).toBeVisible();
       }
+
+      if (path === "/formations") {
+        await expect(
+          page.getByRole("heading", { name: "Master 2 IA & Systèmes Cyber-physiques (IA2S)" }),
+        ).toBeVisible();
+        await expect(page.getByText("Université Paris-Est Créteil (UPEC) · France")).toBeVisible();
+      }
     }
 
     expect(pageErrors).toEqual([]);

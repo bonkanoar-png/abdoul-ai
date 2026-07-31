@@ -7,9 +7,10 @@ test.describe("formations", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Formations" })).toBeVisible();
     await expect(
       page.getByRole("heading", {
-        name: "Master IA, Science des données et systèmes intelligents",
+        name: "Master 2 IA & Systèmes Cyber-physiques (IA2S)",
       }),
     ).toBeVisible();
+    await expect(page.getByText("Université Paris-Est Créteil (UPEC) · France")).toBeVisible();
     await expect(page.getByRole("list", { name: "Parcours de formation" })).toBeVisible();
   });
 

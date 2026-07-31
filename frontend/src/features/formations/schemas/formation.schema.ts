@@ -1,30 +1,32 @@
 import { z } from "zod";
 
-const yearSchema = z.string().regex(/^\d{4}$/, "Une année au format YYYY est attendue");
-
-export const formationTypeSchema = z.enum([
+export const formationFieldSchema = z.enum([
   "Intelligence artificielle",
   "Data Science",
-  "Mathématiques",
+  "Statistiques mathématiques",
+  "Mathématiques appliquées",
 ]);
 
 export const formationSchema = z
   .object({
     id: z.uuid(),
-    title: z.string().min(1),
     degree: z.string().min(1),
+    field: formationFieldSchema,
     institution: z.string().min(1),
     location: z.string().min(1),
-    startDate: yearSchema,
-    endDate: yearSchema.nullable(),
+    startDate: z.iso.date(),
+    endDate: z.iso.date().nullable(),
+    status: z.enum(["Obtenu", "En cours"]),
     description: z.string().min(1),
+    highlights: z.array(z.string().min(1)).min(1),
     skills: z.array(z.string().min(1)).min(1),
-    type: formationTypeSchema,
+    technologies: z.array(z.string().min(1)).optional(),
+    projects: z.array(z.string().min(1)).optional(),
+    logo: z.url().optional(),
     website: z.url().optional(),
     mention: z.string().min(1).optional(),
-    credential: z.string().min(1).optional(),
   })
-  .refine(({ startDate, endDate }) => endDate === null || Number(endDate) >= Number(startDate), {
+  .refine(({ startDate, endDate }) => endDate === null || endDate >= startDate, {
     message: "La date de fin doit être postérieure à la date de début",
     path: ["endDate"],
   });

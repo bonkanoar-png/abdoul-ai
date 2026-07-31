@@ -20,7 +20,7 @@ const formation = formationFixtures[0] satisfies Formation;
 describe("FormationsPage", () => {
   beforeEach(() => vi.mocked(getFormationsResult).mockReset());
 
-  it("renders the title and the formations", async () => {
+  it("renders the four real formations and their skills", async () => {
     vi.mocked(getFormationsResult).mockResolvedValue({
       status: "success",
       data: formationFixtures,
@@ -29,8 +29,12 @@ describe("FormationsPage", () => {
     render(await FormationsPage());
 
     expect(screen.getByRole("heading", { level: 1, name: "Formations" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: formation.title })).toBeInTheDocument();
+    for (const item of formationFixtures) {
+      expect(screen.getByRole("heading", { name: item.degree })).toBeInTheDocument();
+    }
     expect(screen.getByText("Université Paris-Est Créteil (UPEC) · France")).toBeInTheDocument();
+    expect(screen.getAllByText("Talend")).toHaveLength(2);
+    expect(screen.getAllByText("R")).toHaveLength(4);
   });
 
   it("renders the empty state", async () => {
@@ -60,29 +64,44 @@ describe("Formation components", () => {
   it("renders a card with its required and optional fields", () => {
     render(<FormationCard formation={formation} />);
 
-    expect(screen.getByText(formation.degree)).toBeInTheDocument();
-    expect(screen.getByText(formation.type)).toBeInTheDocument();
-    expect(screen.getByText(formation.skills[0])).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: formation.degree })).toBeInTheDocument();
+    expect(screen.getByText(formation.field)).toBeInTheDocument();
+    expect(screen.getByText("Obtenu")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Points clés" })).toBeInTheDocument();
+    expect(screen.getAllByText(formation.skills[0])).toHaveLength(2);
     expect(screen.getByRole("link", { name: /Découvrir l’établissement/ })).toHaveAttribute(
       "target",
       "_blank",
     );
   });
 
-  it("renders optional mention and credential fields", () => {
-    render(<FormationCard formation={formationFixtures[2]} />);
+  it("renders optional technologies and safely omits the website", () => {
+    render(<FormationCard formation={formationFixtures[1]} />);
 
-    expect(screen.getByText(/Diplôme : Licence Mathématiques/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_content, element) =>
+          element?.tagName === "P" &&
+          element.textContent?.includes("Technologies : Talend") === true,
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: /Découvrir l’établissement/ }),
     ).not.toBeInTheDocument();
   });
 
   it("renders the degree and domain badge", () => {
-    render(<FormationBadge degree="Master" type="Data Science" />);
+    render(
+      <FormationBadge
+        degree="Master 2 Sciences des données"
+        field="Data Science"
+        status="Obtenu"
+      />,
+    );
 
     expect(screen.getByText("Master")).toBeInTheDocument();
     expect(screen.getByText("Data Science")).toBeInTheDocument();
+    expect(screen.getByText("Obtenu")).toBeInTheDocument();
   });
 
   it("renders an accessible timeline and its empty state", () => {

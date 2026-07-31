@@ -7,7 +7,7 @@ import {
 
 describe("formation service", () => {
   it("returns validated fixtures", async () => {
-    await expect(getFormations()).resolves.toHaveLength(3);
+    await expect(getFormations()).resolves.toHaveLength(4);
   });
 
   it("returns success, empty and error states", async () => {

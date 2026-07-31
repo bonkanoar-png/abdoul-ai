@@ -17,7 +17,7 @@ describe("formationSchema", () => {
       formationSchema.safeParse({
         ...formationFixtures[0],
         id: "invalid",
-        endDate: "2019",
+        endDate: "2019-01-01",
         skills: [],
       }).success,
     ).toBe(false);
