@@ -1,76 +1,72 @@
 # Abdoul AI
 
 [![CI](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/ci.yml)
+[![Frontend CI](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/frontend-ci.yml)
 
-Abdoul AI est une plateforme de portfolio professionnel conçue comme une base évolutive pour de
-futurs usages d'intelligence artificielle. Elle sépare une interface Next.js d'une API FastAPI
-asynchrone, avec un domaine métier indépendant de la persistance.
+## Présentation
 
-La phase Backend Core fournit aujourd'hui une API publique en lecture seule pour le profil, les
-expériences, formations, compétences, projets, technologies, publications, certifications,
-documents et conversations persistées. Aucun LLM, RAG ou agent n'est encore implémenté.
-
-## Fonctionnalités
-
-- portfolio public structuré et ordonné ;
-- ressources métier exposées par des endpoints dédiés ;
-- conversations et messages persistés en lecture seule ;
-- migrations Alembic et seed de profil idempotent ;
-- contrôles de santé PostgreSQL et Redis ;
-- tests unitaires, API et PostgreSQL ;
-- contrôles qualité locaux et CI GitHub Actions.
+Abdoul AI est un portfolio IA interactif. L'application sépare une interface Next.js d'une API
+FastAPI et présente le parcours, les compétences, les projets et les publications, avec des
+expériences interactives de chatbot, Career Copilot et Data Lab.
 
 ## Stack technique
 
-- **Backend :** Python 3.13, FastAPI, Pydantic, SQLAlchemy 2 async et asyncpg.
-- **Données :** PostgreSQL 17 avec pgvector, Redis et Alembic.
-- **Frontend :** Next.js 16, React 19, TypeScript, Server Components et Tailwind CSS v4.
-- **Qualité :** Ruff, mypy, pytest, coverage, Vitest, ESLint, Prettier et pre-commit.
-- **CI :** GitHub Actions, sans déploiement automatique.
+- **Frontend :** Next.js 16, React 19, TypeScript, Tailwind CSS, Vitest et Playwright.
+- **Backend :** FastAPI, Pydantic et SQLAlchemy async.
+- **Data :** PostgreSQL avec pgvector et Redis.
+- **Qualité :** ESLint, TypeScript, Vitest, Playwright, axe-core, Ruff, mypy et pytest.
+- **CI :** GitHub Actions ; aucune livraison ou mise en production automatique.
+
+Le dépôt utilise actuellement Next.js 16 et Node.js 24, tels que verrouillés dans
+`frontend/package-lock.json` et les workflows.
 
 ## Architecture
 
 ```text
-Next.js (Server Components)
-            |
-            v
-FastAPI API -> Application -> Domain
-                              ^
-                              |
-                Infrastructure SQLAlchemy
-                              |
-                              v
-                         PostgreSQL
+Utilisateur
+    |
+    v
+frontend/ (Next.js)
+    |
+    v
+backend/ (FastAPI)
+    |
+    +----> PostgreSQL
+    |
+    +----> Redis
 ```
 
-Les entités et contrats du Domain ne dépendent ni de FastAPI ni de SQLAlchemy. Les cas d'usage
-Application orchestrent ces contrats ; les repositories SQLAlchemy assurent leur implémentation.
+- `frontend/` contient l'App Router, les composants, les fonctionnalités, les services et les tests.
+- `backend/` contient l'API et ses couches Domain, Application et Infrastructure.
+- `compose.yaml` décrit les services PostgreSQL/pgvector et Redis pour le développement local.
+- `docs/` rassemble l'architecture, les conventions, les tests et le déploiement.
 
-## Démarrage rapide
+Voir la [documentation d'architecture](docs/architecture.md) pour les flux détaillés.
 
-Prérequis : Python 3.13, Node.js 24, npm, Docker Compose et Git.
+## Installation locale
+
+Prérequis : Git, Node.js 24, npm, Python 3.13 et Docker Compose.
 
 ```bash
+git clone https://github.com/bonkanoar-png/abdoul-ai.git
+cd abdoul-ai
+
 python3.13 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r backend/requirements-dev.txt
+
 cp .env.example .env
 cp frontend/.env.example frontend/.env.local
 docker compose up -d
 ```
 
-Pour un backend lancé sur l'hôte, définir `DATABASE_URL` avec `localhost` et
-`REDIS_HOST=localhost`, puis :
+Lancer le backend :
 
 ```bash
-cd backend
-alembic upgrade head
-python -m scripts.seed
-cd ..
 uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port 8000 --reload
 ```
 
-Dans un autre terminal :
+Dans un autre terminal, lancer le frontend :
 
 ```bash
 cd frontend
@@ -78,38 +74,51 @@ npm ci
 npm run dev
 ```
 
-L'API est disponible sur `http://localhost:8000`, sa documentation sur `/docs`, et le frontend sur
-`http://localhost:3000`.
+Le frontend est disponible sur `http://localhost:3000`, l'API sur `http://localhost:8000` et la
+documentation OpenAPI sur `http://localhost:8000/docs`.
 
-## Validation
+## Variables frontend
 
-```bash
-ruff check backend
-ruff format --check backend
-mypy backend/app backend/tests
-pytest --cov=backend/app
-pre-commit run --all-files
+Copier `frontend/.env.example` vers `frontend/.env.local`, puis adapter uniquement les origines
+publiques :
+
+```dotenv
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-```bash
-cd frontend
-npm run format:check
-npm run lint
-npm run typecheck
-npm run test
-npm run build
-```
+Ces variables sont exposables au navigateur et ne doivent contenir aucun secret, token ou clé API.
+
+## Scripts frontend
+
+Depuis `frontend/` :
+
+| Commande            | Rôle                                          |
+| ------------------- | --------------------------------------------- |
+| `npm run dev`       | Lance le serveur de développement             |
+| `npm run lint`      | Exécute ESLint                                |
+| `npm run typecheck` | Vérifie les types TypeScript sans émission    |
+| `npm run test`      | Exécute les tests Vitest                      |
+| `npm run build`     | Produit et valide le build Next.js            |
+| `npm run test:e2e`  | Exécute les tests Playwright et accessibilité |
+
+## CI et preview
+
+Le workflow `Frontend CI` s'exécute sur les pushes vers `main` et `feature/*`, ainsi que sur les
+Pull Requests ciblant `main`. Il installe les dépendances avec `npm ci`, puis bloque en cas d'échec
+du lint, du typecheck, des tests, du build ou de Playwright. Les traces et captures Playwright sont
+conservées comme artefact lors d'un échec.
+
+La preview recommandée repose sur Vercel, sans connexion ni secret configuré dans ce dépôt. La
+[procédure de preview](docs/deployment.md) décrit l'import, le répertoire racine et les variables à
+renseigner.
 
 ## Documentation
 
-- [Architecture backend](docs/architecture/backend-architecture.md)
-- [Architecture frontend](docs/architecture/frontend.md)
-- [Base de données](docs/architecture/database.md)
+- [Vue globale de l'architecture](docs/architecture.md)
+- [Conventions frontend](docs/frontend.md)
+- [Stratégie de tests](docs/testing.md)
+- [Preview et déploiement](docs/deployment.md)
+- [Installation détaillée](docs/development/setup.md)
 - [Référence API](docs/api/reference.md)
-- [Installation locale](docs/development/setup.md)
-- [Tests](docs/development/testing.md)
-- [Qualité et CI](docs/development/quality-and-ci.md)
-- [CI/CD et automatisation](docs/development/ci-cd.md)
 - [Contribution](docs/development/contributing.md)
-- [Périmètre produit](docs/product/current-scope.md)
-- [Roadmap](docs/product/roadmap.md)
