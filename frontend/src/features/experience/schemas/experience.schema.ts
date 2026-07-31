@@ -14,6 +14,12 @@ export const experienceSchema = z.object({
   updated_at: z.iso.datetime(),
   location: z.string().nullable().optional(),
   technologies: z.array(z.string()).nullable().optional(),
+  contract_type: z.string().min(1).optional(),
+  missions: z.array(z.string().min(1)).optional(),
+  results: z.array(z.string().min(1)).optional(),
+  skills: z.array(z.string().min(1)).optional(),
+  environment: z.array(z.string().min(1)).optional(),
+  publication: z.string().min(1).optional(),
 });
 
 export const experiencesSchema = z.array(experienceSchema);

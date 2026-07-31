@@ -28,6 +28,15 @@ test.describe("navigation globale", () => {
         .click();
       await expect(page).toHaveURL(new RegExp(`${path}$`));
       await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
+
+      if (path === "/experience") {
+        await expect(page.getByRole("list", { name: "Parcours professionnel" })).toBeVisible();
+        await expect(
+          page.getByRole("heading", {
+            name: "Professeur de Mathématiques | Analyse, Pédagogie et Gestion",
+          }),
+        ).toBeVisible();
+      }
     }
 
     expect(pageErrors).toEqual([]);

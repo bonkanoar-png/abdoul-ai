@@ -6,6 +6,7 @@ import {
   experiencesSchema,
   type Experience,
 } from "@/features/experience/schemas/experience.schema";
+import { experienceFixtures } from "@/features/experience/fixtures/experiences";
 import { apiClient } from "@/lib/api/client";
 
 export type ExperiencesResult =
@@ -15,8 +16,12 @@ export async function getExperiences(): Promise<Experience[]> {
   return experiencesSchema.parse(await apiClient.get("/api/v1/experiences"));
 }
 
+export async function getPortfolioExperiences(): Promise<Experience[]> {
+  return experiencesSchema.parse(experienceFixtures);
+}
+
 export async function getExperiencesResult(
-  loadExperiences: () => Promise<Experience[]> = getExperiences,
+  loadExperiences: () => Promise<Experience[]> = getPortfolioExperiences,
 ): Promise<ExperiencesResult> {
   try {
     const experiences = experiencesSchema.parse(await loadExperiences());

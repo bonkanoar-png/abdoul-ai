@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { ExperienceCard, ExperienceTimeline } from "@/features/experience";
+import { ExperienceBadge, ExperienceCard, ExperienceTimeline } from "@/features/experience";
+import { experienceFixtures } from "@/features/experience/fixtures/experiences";
 import { experienceFixture } from "@/test/fixtures";
 
 describe("Experience components", () => {
@@ -35,5 +36,23 @@ describe("Experience components", () => {
 
     rerender(<ExperienceTimeline experiences={[]} />);
     expect(screen.getByRole("list", { name: "Parcours professionnel" })).toBeEmptyDOMElement();
+  });
+
+  it("renders contract, impact, missions, skills, environment and publication", () => {
+    render(<ExperienceCard experience={experienceFixtures[3]} />);
+
+    expect(screen.getByText("CDD temps partiel")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Impact professionnel" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Missions" })).toBeInTheDocument();
+    expect(screen.getByText("Computer Vision")).toBeInTheDocument();
+    expect(screen.getByText(/Imagerie X-Ray/)).toBeInTheDocument();
+    expect(screen.getByText(/Hybrid Machine and Deep Transfer Learning/)).toBeInTheDocument();
+  });
+
+  it("identifies the current experience", () => {
+    render(<ExperienceBadge contractType="CDD" current />);
+
+    expect(screen.getByText("CDD")).toBeInTheDocument();
+    expect(screen.getByText("Poste actuel")).toBeInTheDocument();
   });
 });

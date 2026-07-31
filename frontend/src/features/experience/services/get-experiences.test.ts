@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { getExperiencesResult } from "@/features/experience/services/get-experiences";
+import {
+  getExperiencesResult,
+  getPortfolioExperiences,
+} from "@/features/experience/services/get-experiences";
 
 const experience = {
   id: "123e4567-e89b-42d3-a456-426614174000",
@@ -17,6 +20,11 @@ const experience = {
 };
 
 describe("getExperiencesResult", () => {
+  it("loads the four validated portfolio experiences by default", async () => {
+    await expect(getPortfolioExperiences()).resolves.toHaveLength(4);
+    await expect(getExperiencesResult()).resolves.toMatchObject({ status: "success" });
+  });
+
   it("returns validated experience data", async () => {
     await expect(getExperiencesResult(async () => [experience])).resolves.toEqual({
       status: "success",
