@@ -1,0 +1,29 @@
+groups:
+  - name: abdoul-ai-application
+    rules:
+      - alert: BackendDown
+        expr: up{job="abdoul-ai-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Backend API unavailable
+          description: Prometheus cannot scrape the FastAPI backend for more than two minutes.
+
+      - alert: ApiHighErrorRate
+        expr: sum(rate(abdoul_ai_http_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(abdoul_ai_http_requests_total[5m])), 0.001) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Elevated API error rate
+          description: More than 5% of API requests returned 5xx over the last ten minutes.
+
+      - alert: ApiHighP95Latency
+        expr: histogram_quantile(0.95, sum by (le) (rate(abdoul_ai_http_request_duration_seconds_bucket[5m]))) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Elevated API p95 latency
+          description: API p95 latency exceeded one second for ten minutes.

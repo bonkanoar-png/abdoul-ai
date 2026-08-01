@@ -1,0 +1,47 @@
+groups:
+  - name: abdoul-ai-infrastructure
+    rules:
+      - alert: HostHighCpu
+        expr: 1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) > 0.85
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: High host CPU usage
+          description: Host CPU usage exceeded 85% for fifteen minutes.
+
+      - alert: HostHighMemory
+        expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.9
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: High host memory usage
+          description: Host memory usage exceeded 90% for fifteen minutes.
+
+      - alert: HostDiskAlmostFull
+        expr: node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} < 0.15
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: Host disk almost full
+          description: Less than 15% disk space remains on {{ $labels.mountpoint }}.
+
+      - alert: PostgreSQLUnavailable
+        expr: probe_success{job="blackbox",instance="postgres:5432"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: PostgreSQL unavailable
+          description: The PostgreSQL TCP probe failed for two minutes.
+
+      - alert: RedisUnavailable
+        expr: probe_success{job="blackbox",instance="redis:6379"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Redis unavailable
+          description: The Redis TCP probe failed for two minutes.

@@ -108,9 +108,69 @@ services:
 
   prometheus:
     ports: !reset []
+    volumes:
+      - ./monitoring/prometheus/prometheus.prod.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus-data:/prometheus
     networks: !override
       - backend-network
       - monitoring-network
+    depends_on:
+      alertmanager:
+        condition: service_started
+      blackbox-exporter:
+        condition: service_started
+      node-exporter:
+        condition: service_started
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    container_name: abdoul-ai-alertmanager
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    ports:
+      - "${MONITORING_BIND_ADDRESS:-127.0.0.1}:${ALERTMANAGER_PORT:-9093}:9093"
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.27.0
+    container_name: abdoul-ai-blackbox-exporter
+    command: ["--config.file=/etc/blackbox/blackbox.yml"]
+    volumes:
+      - ./monitoring/blackbox/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    networks:
+      - monitoring-network
+      - data-network
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  node-exporter:
+    image: prom/node-exporter:v1.9.1
+    container_name: abdoul-ai-node-exporter
+    command:
+      - --path.rootfs=/host
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    volumes:
+      - /:/host:ro
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
 
   loki:
     ports: !reset []
@@ -163,3 +223,4 @@ networks:
 volumes:
   letsencrypt-data:
   certbot-webroot:
+  alertmanager-data:

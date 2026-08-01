@@ -17,6 +17,9 @@ _SAFE_REQUEST_ID = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 _metrics_lock = threading.Lock()
 _request_counts: defaultdict[tuple[str, str, str], int] = defaultdict(int)
 _request_duration_seconds: defaultdict[tuple[str, str], float] = defaultdict(float)
+_request_duration_counts: defaultdict[tuple[str, str], int] = defaultdict(int)
+_request_duration_buckets = (0.1, 0.25, 0.5, 1.0, 2.5, 5.0)
+_request_duration_bucket_counts: defaultdict[tuple[str, str, float], int] = defaultdict(int)
 
 
 class JsonFormatter(logging.Formatter):
@@ -77,6 +80,10 @@ def install_observability(application: FastAPI) -> None:
             with _metrics_lock:
                 _request_counts[(request.method, path, str(status_code))] += 1
                 _request_duration_seconds[(request.method, path)] += duration
+                _request_duration_counts[(request.method, path)] += 1
+                for bucket in _request_duration_buckets:
+                    if duration <= bucket:
+                        _request_duration_bucket_counts[(request.method, path, bucket)] += 1
             if "response" in locals():
                 response.headers[REQUEST_ID_HEADER] = request_id
             logger.info(
@@ -100,6 +107,8 @@ def prometheus_metrics() -> str:
     with _metrics_lock:
         counts = sorted(_request_counts.items())
         durations = sorted(_request_duration_seconds.items())
+        duration_counts = sorted(_request_duration_counts.items())
+        bucket_counts = sorted(_request_duration_bucket_counts.items())
     for (method, path, status), value in counts:
         lines.append(
             f'abdoul_ai_http_requests_total{{method="{method}",path="{path}",status="{status}"}} {value}'
@@ -113,5 +122,26 @@ def prometheus_metrics() -> str:
     for (method, path), value in durations:
         lines.append(
             f'abdoul_ai_http_request_duration_seconds_total{{method="{method}",path="{path}"}} {value:.9f}'
+        )
+    lines.extend(
+        [
+            "# HELP abdoul_ai_http_request_duration_seconds HTTP request duration histogram.",
+            "# TYPE abdoul_ai_http_request_duration_seconds histogram",
+        ]
+    )
+    for (method, path, bucket), value in bucket_counts:
+        lines.append(
+            f'abdoul_ai_http_request_duration_seconds_bucket{{method="{method}",path="{path}",le="{bucket:g}"}} {value}'
+        )
+    duration_sums = dict(durations)
+    for (method, path), count in duration_counts:
+        lines.append(
+            f'abdoul_ai_http_request_duration_seconds_bucket{{method="{method}",path="{path}",le="+Inf"}} {count}'
+        )
+        lines.append(
+            f'abdoul_ai_http_request_duration_seconds_count{{method="{method}",path="{path}"}} {count}'
+        )
+        lines.append(
+            f'abdoul_ai_http_request_duration_seconds_sum{{method="{method}",path="{path}"}} {duration_sums[(method, path)]:.9f}'
         )
     return "\n".join(lines) + "\n"
