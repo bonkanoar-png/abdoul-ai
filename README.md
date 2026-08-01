@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/ci.yml)
 [![Frontend CI](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/frontend-ci.yml)
+[![Docker Build](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/docker-build.yml/badge.svg)](https://github.com/bonkanoar-png/abdoul-ai/actions/workflows/docker-build.yml)
 
 ## Présentation
 
@@ -15,7 +16,7 @@ expériences interactives de chatbot, Career Copilot et Data Lab.
 - **Backend :** FastAPI, Pydantic et SQLAlchemy async.
 - **Data :** PostgreSQL avec pgvector et Redis.
 - **Qualité :** ESLint, TypeScript, Vitest, Playwright, axe-core, Ruff, mypy et pytest.
-- **CI :** GitHub Actions ; aucune livraison ou mise en production automatique.
+- **CI :** GitHub Actions, images GHCR, scan Trivy et SBOM CycloneDX ; aucun déploiement automatique.
 
 Le dépôt utilise actuellement Next.js 16 et Node.js 24, tels que verrouillés dans
 `frontend/package-lock.json` et les workflows.
@@ -109,6 +110,11 @@ Pull Requests ciblant `main`. Il installe les dépendances avec `npm ci`, puis b
 du lint, du typecheck, des tests, du build ou de Playwright. Les traces et captures Playwright sont
 conservées comme artefact lors d'un échec.
 
+Le workflow Docker construit et analyse les images frontend/backend sur les branches et pull
+requests. Les pushes autorisés publient les images validées dans GHCR avec tags de branche, SHA et
+SemVer. Voir la [documentation CI Docker](docs/deployment/docker-ci.md) pour la politique de scan,
+les SBOM et la convention de versionnement.
+
 La preview recommandée repose sur Vercel, sans connexion ni secret configuré dans ce dépôt. La
 [procédure de preview](docs/deployment.md) décrit l'import, le répertoire racine et les variables à
 renseigner.
@@ -119,6 +125,7 @@ renseigner.
 - [Conventions frontend](docs/frontend.md)
 - [Stratégie de tests](docs/testing.md)
 - [Preview et déploiement](docs/deployment.md)
+- [CI Docker et supply chain](docs/deployment/docker-ci.md)
 - [Installation détaillée](docs/development/setup.md)
 - [Référence API](docs/api/reference.md)
 - [Contribution](docs/development/contributing.md)

@@ -16,6 +16,7 @@ services:
       - data-network
 
   backend:
+    image: ghcr.io/bonkanoar-png/abdoul-ai-backend:${IMAGE_TAG:?IMAGE_TAG is required}
     ports: !reset []
     environment:
       POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
@@ -28,6 +29,7 @@ services:
       - data-network
 
   frontend:
+    image: ghcr.io/bonkanoar-png/abdoul-ai-frontend:${IMAGE_TAG:?IMAGE_TAG is required}
     build:
       args:
         NEXT_PUBLIC_API_URL: http://nginx:8080

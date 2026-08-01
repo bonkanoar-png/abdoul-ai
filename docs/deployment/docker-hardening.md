@@ -44,12 +44,12 @@ backend, et restent exécutables depuis le conteneur non-root.
 Les limites locales empêchent un service défaillant de monopoliser l’hôte tout en laissant une marge
 adaptée aux builds et au démarrage :
 
-| Service | CPU | Mémoire | PIDs |
-| --- | ---: | ---: | ---: |
-| Frontend | 1 | 1 Gio | 256 |
-| Backend | 1 | 1 Gio | 256 |
-| PostgreSQL | 1,5 | 1,5 Gio | 256 |
-| Redis | 0,5 | 512 Mio | 128 |
+| Service    | CPU | Mémoire | PIDs |
+| ---------- | --: | ------: | ---: |
+| Frontend   |   1 |   1 Gio |  256 |
+| Backend    |   1 |   1 Gio |  256 |
+| PostgreSQL | 1,5 | 1,5 Gio |  256 |
+| Redis      | 0,5 | 512 Mio |  128 |
 
 Ces valeurs sont une base et doivent être ajustées à partir de métriques de staging.
 
@@ -96,7 +96,8 @@ reconstructible ; sa persistance ne remplace pas une sauvegarde PostgreSQL.
 ## Risques résiduels
 
 - Les tags d’images majeurs ne sont pas épinglés par digest.
-- Aucun scan automatique d’image ou SBOM n’est ajouté dans ce lot.
+- Le [workflow Docker](docker-ci.md) scanne les images et génère leurs SBOM ; la signature Cosign
+  reste une étape future.
 - Le reverse proxy, TLS, la rotation des secrets et les sauvegardes automatisées restent externes.
 - L’URL API actuelle convient aux Server Components, mais un proxy same-origin sera nécessaire pour
   de futurs appels navigateur.

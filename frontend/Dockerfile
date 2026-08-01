@@ -1,3 +1,8 @@
+ARG IMAGE_TAG=local
+ARG BUILD_VERSION=development
+ARG GIT_SHA=unknown
+ARG OCI_SOURCE=https://github.com/bonkanoar-png/abdoul-ai
+
 FROM node:24-alpine AS deps
 
 WORKDIR /app
@@ -23,6 +28,16 @@ RUN mkdir -p public && npm run build
 FROM node:24-alpine AS runner
 
 WORKDIR /app
+
+ARG IMAGE_TAG
+ARG BUILD_VERSION
+ARG GIT_SHA
+ARG OCI_SOURCE
+
+LABEL org.opencontainers.image.source="${OCI_SOURCE}" \
+      org.opencontainers.image.revision="${GIT_SHA}" \
+      org.opencontainers.image.version="${BUILD_VERSION}" \
+      org.opencontainers.image.ref.name="${IMAGE_TAG}"
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

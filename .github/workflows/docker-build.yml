@@ -1,0 +1,127 @@
+name: Docker Build and Supply Chain
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/*"
+    tags:
+      - "v*.*.*"
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: docker-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-scan-publish:
+    name: ${{ matrix.component }} image
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - component: frontend
+            context: ./frontend
+          - component: backend
+            context: ./backend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/abdoul-ai-${{ matrix.component }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix=sha-
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build local image with BuildKit cache
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: ${{ matrix.context }}
+          load: true
+          push: false
+          tags: |
+            local/abdoul-ai-${{ matrix.component }}:${{ github.sha }}
+            ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            IMAGE_TAG=${{ steps.meta.outputs.version }}
+            BUILD_VERSION=${{ steps.meta.outputs.version }}
+            GIT_SHA=${{ github.sha }}
+            OCI_SOURCE=${{ github.server_url }}/${{ github.repository }}
+            NEXT_PUBLIC_API_URL=http://backend:8000
+            NEXT_PUBLIC_SITE_URL=http://localhost:3000
+          cache-from: type=gha,scope=${{ matrix.component }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.component }}
+
+      - name: Generate HIGH and CRITICAL vulnerability report
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: local/abdoul-ai-${{ matrix.component }}:${{ github.sha }}
+          format: sarif
+          output: trivy-${{ matrix.component }}.sarif
+          exit-code: "0"
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+
+      - name: Generate CycloneDX SBOM
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: local/abdoul-ai-${{ matrix.component }}:${{ github.sha }}
+          format: cyclonedx
+          output: sbom-${{ matrix.component }}.cdx.json
+          exit-code: "0"
+
+      - name: Upload supply-chain reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: supply-chain-${{ matrix.component }}-${{ github.sha }}
+          path: |
+            trivy-${{ matrix.component }}.sarif
+            sbom-${{ matrix.component }}.cdx.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Enforce CRITICAL vulnerability policy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: local/abdoul-ai-${{ matrix.component }}:${{ github.sha }}
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL
+
+      - name: Push approved tags to GHCR
+        if: github.event_name == 'push'
+        run: docker push --all-tags "${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/abdoul-ai-${{ matrix.component }}"
