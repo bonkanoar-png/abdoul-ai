@@ -133,9 +133,135 @@ services:
     mem_limit: 1024m
     pids_limit: 256
 
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    container_name: abdoul-ai-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - abdoul-ai-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  loki-init:
+    image: alpine:3.23
+    container_name: abdoul-ai-loki-init
+    command: ["chown", "10001:10001", "/loki"]
+    volumes:
+      - loki-data:/loki
+    networks:
+      - abdoul-ai-network
+    restart: "no"
+    cap_drop: [ALL]
+    cap_add: [CHOWN]
+    security_opt: [no-new-privileges:true]
+
+  loki:
+    image: grafana/loki:3.6.0
+    container_name: abdoul-ai-loki
+    command: ["-config.file=/etc/loki/loki.yml"]
+    ports:
+      - "127.0.0.1:${LOKI_PORT:-3100}:3100"
+    volumes:
+      - ./monitoring/loki/loki.yml:/etc/loki/loki.yml:ro
+      - loki-data:/loki
+    networks:
+      - abdoul-ai-network
+    depends_on:
+      loki-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  alloy:
+    image: grafana/alloy:v1.11.3
+    container_name: abdoul-ai-alloy
+    command: ["run", "/etc/alloy/config.alloy", "--storage.path=/tmp/alloy"]
+    volumes:
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - abdoul-ai-network
+    depends_on:
+      - loki
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  grafana:
+    image: grafana/grafana:12.3.1
+    container_name: abdoul-ai-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-change-me-local-only}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3001}:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - abdoul-ai-network
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  postgres-backup:
+    image: postgres:17-alpine
+    container_name: abdoul-ai-postgres-backup
+    environment:
+      PGUSER: ${POSTGRES_USER:-abdoul_ai}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-change-me-local-only}
+      POSTGRES_USER: ${POSTGRES_USER:-abdoul_ai}
+      POSTGRES_DB: ${POSTGRES_DB:-abdoul_ai}
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+    command: ["sh", "/scripts/backup-postgres.sh"]
+    volumes:
+      - ./docker/backup-postgres.sh:/scripts/backup-postgres.sh:ro
+      - postgres-backups:/backups
+    networks:
+      - abdoul-ai-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
 volumes:
   postgres-data:
   redis-data:
+  prometheus-data:
+  loki-data:
+  grafana-data:
+  postgres-backups:
 
 networks:
   abdoul-ai-network:

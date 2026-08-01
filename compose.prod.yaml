@@ -65,7 +65,15 @@ services:
       backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/nginx-health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "-q",
+          "-O",
+          "/dev/null",
+          "http://127.0.0.1:8080/nginx-health",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -82,6 +90,43 @@ services:
     mem_limit: 256m
     pids_limit: 128
 
+  prometheus:
+    ports: !reset []
+    networks: !override
+      - backend-network
+      - monitoring-network
+
+  loki:
+    ports: !reset []
+    networks: !override
+      - monitoring-network
+
+  loki-init:
+    networks: !override
+      - monitoring-network
+
+  alloy:
+    networks: !override
+      - monitoring-network
+
+  grafana:
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+    ports:
+      - "${MONITORING_BIND_ADDRESS:-127.0.0.1}:${GRAFANA_PORT:-3001}:3000"
+    networks: !override
+      - monitoring-network
+
+  postgres-backup:
+    environment:
+      PGUSER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+    networks: !override
+      - data-network
+
 networks:
   abdoul-ai-network: !reset null
   proxy-network:
@@ -93,5 +138,8 @@ networks:
     driver: bridge
     internal: true
   data-network:
+    driver: bridge
+    internal: true
+  monitoring-network:
     driver: bridge
     internal: true

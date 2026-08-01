@@ -4,13 +4,18 @@ Run locally with:
     uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port 8000 --reload
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.errors import register_error_handlers
 from app.api.responses import SecurityHeadersMiddleware
 from app.api.router import build_api_router
 from app.core.config import get_settings
+from app.core.observability import (
+    configure_json_logging,
+    install_observability,
+    prometheus_metrics,
+)
 
 OPENAPI_TAGS = [
     {"name": "health", "description": "Process and infrastructure availability."},
@@ -31,6 +36,7 @@ OPENAPI_TAGS = [
 def create_application() -> FastAPI:
     """Compose the production-ready FastAPI application shell."""
     settings = get_settings()
+    configure_json_logging()
     application = FastAPI(
         title=settings.app_name,
         version=settings.app_version,
@@ -49,6 +55,12 @@ def create_application() -> FastAPI:
         allow_headers=["Accept", "Content-Type"],
     )
     application.add_middleware(SecurityHeadersMiddleware)
+    install_observability(application)
+
+    @application.get("/metrics", include_in_schema=False)
+    async def metrics() -> Response:
+        return Response(prometheus_metrics(), media_type="text/plain; version=0.0.4")
+
     register_error_handlers(application)
     application.include_router(build_api_router(settings.api_v1_prefix))
     return application
