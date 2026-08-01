@@ -47,7 +47,9 @@ proxy same-origin (`/api`) ou séparer clairement `API_SERVER_URL` et `NEXT_PUBL
 
 ## Production
 
-La configuration actuelle vise le développement local. En production :
+La configuration actuelle vise le développement local. Une base production est disponible via
+`compose.prod.yaml` et détaillée dans [le guide de durcissement](../deployment/docker-hardening.md).
+En production :
 
 - PostgreSQL et Redis ne doivent pas publier leurs ports sur l’hôte ;
 - les identifiants par défaut doivent être remplacés par des secrets gérés hors du dépôt ;

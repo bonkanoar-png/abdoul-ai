@@ -1,0 +1,53 @@
+# Production-oriented overrides. Use with:
+# docker compose --env-file .env.production -f compose.yaml -f compose.prod.yaml up -d
+services:
+  postgres:
+    ports: !reset []
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    networks: !override
+      - data-network
+
+  redis:
+    ports: !reset []
+    networks: !override
+      - data-network
+
+  backend:
+    ports: !reset []
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}
+      CORS_ORIGINS: '["${PUBLIC_SITE_URL:?PUBLIC_SITE_URL is required}"]'
+    networks: !override
+      - backend-network
+      - data-network
+
+  frontend:
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: http://backend:8000
+        NEXT_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:?PUBLIC_SITE_URL is required}
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8000
+      NEXT_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:?PUBLIC_SITE_URL is required}
+    ports: !override
+      - "${FRONTEND_BIND_ADDRESS:-127.0.0.1}:${FRONTEND_PORT:-3000}:3000"
+    networks: !override
+      - frontend-network
+      - backend-network
+
+networks:
+  abdoul-ai-network: !reset null
+  frontend-network:
+    driver: bridge
+  backend-network:
+    driver: bridge
+    internal: true
+  data-network:
+    driver: bridge
+    internal: true

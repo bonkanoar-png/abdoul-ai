@@ -21,6 +21,9 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    cpus: "1.5"
+    mem_limit: 1536m
+    pids_limit: 256
 
   redis:
     image: redis:7.4-alpine
@@ -39,6 +42,9 @@ services:
       retries: 5
       start_period: 5s
     restart: unless-stopped
+    cpus: "0.5"
+    mem_limit: 512m
+    pids_limit: 128
 
   backend:
     build:
@@ -75,6 +81,16 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    cpus: "1.0"
+    mem_limit: 1024m
+    pids_limit: 256
 
   frontend:
     build:
@@ -106,6 +122,16 @@ services:
       retries: 5
       start_period: 15s
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    cpus: "1.0"
+    mem_limit: 1024m
+    pids_limit: 256
 
 volumes:
   postgres-data:
