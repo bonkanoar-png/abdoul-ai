@@ -1,0 +1,1 @@
+export default function Page() { return <section className="mx-auto max-w-lg rounded-3xl border border-line bg-surface p-8"><h1 className="text-3xl font-bold">Connexion admin</h1><p className="text-muted mt-3">L’authentification sera disponible dans une phase ultérieure.</p>{/* TODO: Authentication required before production deployment */}</section>; }

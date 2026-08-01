@@ -1,0 +1,1 @@
+export default function Page() { return <section><h1 className="text-3xl font-bold">Paramètres</h1><div className="mt-8 rounded-2xl border border-line bg-surface p-6"><h2 className="font-bold">Mode de données</h2><p className="text-muted mt-2">Repository mock local. La connexion à l’API FastAPI sera ajoutée dans une phase ultérieure.</p></div></section>; }
