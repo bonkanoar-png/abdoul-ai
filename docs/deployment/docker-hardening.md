@@ -6,26 +6,24 @@ Le développement conserve un réseau bridge partagé afin de rester simple à d
 quatre ports sont publiés sur la machine locale : frontend `3000`, backend `8000`, PostgreSQL `5432`
 et Redis `6379`.
 
-La configuration de production s’applique en superposant `compose.prod.yaml`. Elle sépare les flux :
+La configuration de production s’applique en superposant `compose.prod.yaml`. Elle ajoute un
+[reverse proxy Nginx](reverse-proxy.md) et sépare les flux :
 
 ```text
-Internet / reverse proxy
+Internet
         │
- frontend-network
+  proxy-network
         │
-     frontend
+      Nginx
+     ┌──┴──┐
+frontend  backend
         │
- backend-network (interne)
-        │
-      backend
-        │
- data-network (interne)
+ data-network
      ┌──┴───┐
  postgres  redis
 ```
 
-Seul le frontend conserve un port publié, lié à `127.0.0.1` par défaut pour être placé derrière un
-reverse proxy TLS. FastAPI, PostgreSQL et Redis restent privés.
+Seul Nginx publie les ports HTTP/HTTPS. Frontend, FastAPI, PostgreSQL et Redis restent privés.
 
 ## Sécurité des conteneurs
 

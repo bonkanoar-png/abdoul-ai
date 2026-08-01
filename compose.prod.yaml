@@ -30,21 +30,63 @@ services:
   frontend:
     build:
       args:
-        NEXT_PUBLIC_API_URL: http://backend:8000
+        NEXT_PUBLIC_API_URL: http://nginx:8080
         NEXT_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:?PUBLIC_SITE_URL is required}
     environment:
-      NEXT_PUBLIC_API_URL: http://backend:8000
+      NEXT_PUBLIC_API_URL: http://nginx:8080
       NEXT_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:?PUBLIC_SITE_URL is required}
-    ports: !override
-      - "${FRONTEND_BIND_ADDRESS:-127.0.0.1}:${FRONTEND_PORT:-3000}:3000"
+    ports: !reset []
     networks: !override
       - frontend-network
+
+  nginx:
+    image: nginx:1.29-alpine
+    container_name: abdoul-ai-nginx
+    user: "101:101"
+    entrypoint: ["nginx"]
+    command: ["-g", "daemon off;"]
+    ports:
+      - "${PROXY_BIND_ADDRESS:-0.0.0.0}:${HTTP_PORT:-80}:8080"
+      - "${PROXY_BIND_ADDRESS:-0.0.0.0}:${HTTPS_PORT:-443}:8443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/snippets:/etc/nginx/snippets:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - proxy-network
+      - frontend-network
       - backend-network
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/nginx-health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    cpus: "0.5"
+    mem_limit: 256m
+    pids_limit: 128
 
 networks:
   abdoul-ai-network: !reset null
+  proxy-network:
+    driver: bridge
   frontend-network:
     driver: bridge
+    internal: true
   backend-network:
     driver: bridge
     internal: true
