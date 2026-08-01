@@ -57,21 +57,18 @@ il ne doit jamais être activé avant que HTTPS et son renouvellement soient fia
 
 ## Activation HTTPS
 
-Le port hôte `443` est relié au listener TLS de préparation, qui refuse les handshakes tant qu’aucun
-certificat réel n’est installé. Aucun faux certificat n’est versionné.
+La production utilise Nginx et Certbot avec des volumes Docker séparés pour les certificats et le
+challenge ACME. Aucun certificat ou clé privée n’est versionné. Le premier certificat doit être
+obtenu avant le démarrage du listener TLS :
 
-Sur l’hôte de production :
+```bash
+scripts/deployment/bootstrap-tls.sh
+```
 
-1. obtenir un certificat pour le domaine avec le gestionnaire ACME choisi ;
-2. monter `fullchain.pem` et `privkey.pem` dans `nginx/certs/` avec des permissions lisibles par
-   l’UID 101 ;
-3. copier `nginx/conf.d/tls.conf.example` vers `nginx/conf.d/tls.conf` ;
-4. adapter `server_name` et retirer le bloc TLS de préparation de `default.conf` ;
-5. valider avec `nginx -t`, redémarrer Nginx puis tester le renouvellement ;
-6. ajouter la redirection HTTP vers HTTPS seulement après cette validation.
-
-Le répertoire de certificats ne doit contenir dans Git que `.gitkeep`. Les clés privées doivent être
-fournies par le système de déploiement ou un volume externe.
+Certbot crée le certificat sous le nom stable `abdoul-ai`, attendu par `tls.conf`. Nginx conserve le
+challenge HTTP et redirige le reste vers HTTPS. Le renouvellement et le rechargement Nginx utilisent
+`scripts/deployment/renew-tls.sh`. La procédure DNS, le timer recommandé et les contrôles sont
+détaillés dans `production-runbook.md`.
 
 ## Commandes de validation
 
@@ -92,5 +89,5 @@ curl -I http://localhost/api/v1/profile
 - Une CSP trop stricte peut bloquer l’hydratation, les images ou de futurs appels WebSocket.
 - Le proxy transmet les headers Upgrade, mais tout futur WebSocket doit être testé de bout en bout.
 - Une mauvaise origine CORS peut bloquer les accès directs au backend.
-- Le renouvellement ACME, les permissions des clés et leur rechargement doivent être supervisés.
+- Le renouvellement ACME, l’expiration et le rechargement Nginx doivent être supervisés.
 - Les logs Nginx vont vers stdout/stderr ; leur collecte, rotation et rétention relèvent de la plateforme.

@@ -54,7 +54,8 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/snippets:/etc/nginx/snippets:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
+      - letsencrypt-data:/etc/letsencrypt:ro
+      - certbot-webroot:/var/www/certbot:ro
     networks:
       - proxy-network
       - frontend-network
@@ -89,6 +90,21 @@ services:
     cpus: "0.5"
     mem_limit: 256m
     pids_limit: 128
+
+  certbot:
+    image: certbot/certbot:v5.2.2
+    container_name: abdoul-ai-certbot
+    profiles: [operations]
+    ports:
+      - "${PROXY_BIND_ADDRESS:-0.0.0.0}:${HTTP_PORT:-80}:80"
+    volumes:
+      - letsencrypt-data:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+    networks:
+      - proxy-network
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
 
   prometheus:
     ports: !reset []
@@ -143,3 +159,7 @@ networks:
   monitoring-network:
     driver: bridge
     internal: true
+
+volumes:
+  letsencrypt-data:
+  certbot-webroot:
