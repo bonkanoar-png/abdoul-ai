@@ -2,6 +2,11 @@ alembic==1.18.5
 SQLAlchemy==2.0.51
 asyncpg==0.31.0
 fastapi==0.140.0
+email-validator==2.3.0
+python-multipart==0.0.22
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+PyJWT==2.10.1
 pydantic-settings==2.14.2
 redis==8.0.1
 uvicorn==0.51.0

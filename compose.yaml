@@ -59,6 +59,11 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-abdoul_ai}:${POSTGRES_PASSWORD:-change-me-local-only}@postgres:5432/${POSTGRES_DB:-abdoul_ai}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      UPLOAD_DIRECTORY: /app/uploads
+      PUBLIC_UPLOAD_BASE_URL: /uploads
+      UPLOAD_MAX_BYTES: ${UPLOAD_MAX_BYTES:-10485760}
+    volumes:
+      - uploads-data:/app/uploads
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     networks:
@@ -255,6 +260,25 @@ services:
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
 
+  uploads-backup:
+    image: alpine:3.22
+    container_name: abdoul-ai-uploads-backup
+    command: ["sh", "-c", "while true; do /scripts/uploads-backup.sh backup; sleep $${UPLOADS_BACKUP_INTERVAL_SECONDS:-86400}; done"]
+    environment:
+      UPLOADS_BACKUP_RETENTION_DAYS: ${UPLOADS_BACKUP_RETENTION_DAYS:-14}
+      UPLOADS_BACKUP_INTERVAL_SECONDS: ${UPLOADS_BACKUP_INTERVAL_SECONDS:-86400}
+    volumes:
+      - ./scripts/backup/uploads-backup.sh:/scripts/uploads-backup.sh:ro
+      - uploads-data:/uploads
+      - uploads-backup-data:/backups
+    restart: unless-stopped
+    read_only: true
+    tmpfs: ["/tmp:size=16m,mode=1777"]
+    cap_drop: [ALL]
+    cap_add: [DAC_OVERRIDE]
+    network_mode: none
+    security_opt: [no-new-privileges:true]
+
 volumes:
   postgres-data:
   redis-data:
@@ -262,6 +286,8 @@ volumes:
   loki-data:
   grafana-data:
   postgres-backups:
+  uploads-data:
+  uploads-backup-data:
 
 networks:
   abdoul-ai-network:

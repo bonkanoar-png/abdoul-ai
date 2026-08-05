@@ -22,7 +22,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app
 
 RUN groupadd --gid 10001 appuser \
-    && useradd --uid 10001 --gid appuser --create-home --shell /usr/sbin/nologin appuser
+    && useradd --uid 10001 --gid appuser --create-home --shell /usr/sbin/nologin appuser \
+    && mkdir -p /app/uploads \
+    && chown appuser:appuser /app/uploads
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir --timeout 600 -r requirements.txt

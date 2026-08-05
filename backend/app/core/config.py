@@ -42,6 +42,16 @@ class Settings(BaseSettings):
     redis_host: str = "redis"
     redis_port: Annotated[int, Field(ge=1, le=65535)] = 6379
     healthcheck_timeout_seconds: Annotated[float, Field(gt=0)] = 2.0
+    admin_jwt_secret: SecretStr = SecretStr("change-me-local-only-admin-secret")
+    admin_jwt_expire_minutes: Annotated[int, Field(ge=5, le=1440)] = 30
+    admin_initial_email: str | None = None
+    admin_initial_password: SecretStr | None = None
+    admin_cookie_name: str = "access_token"
+    admin_cookie_secure: bool | None = None
+    upload_directory: str = "/app/uploads"
+    upload_max_bytes: Annotated[int, Field(ge=1024, le=52_428_800)] = 10_485_760
+    upload_allowed_types: list[str] = ["application/pdf", "image/png", "image/jpeg", "image/webp"]
+    public_upload_base_url: str = "/uploads"
 
     @field_validator("api_v1_prefix")
     @classmethod
@@ -59,7 +69,9 @@ class Settings(BaseSettings):
         """Require the async PostgreSQL driver used by the database engine."""
         parsed_url = urlparse(value)
         if parsed_url.scheme != "postgresql+asyncpg" or not parsed_url.hostname:
-            raise ValueError("DATABASE_URL must use postgresql+asyncpg and include a host.")
+            raise ValueError(
+                "DATABASE_URL must use postgresql+asyncpg and include a host."
+            )
         return value
 
     @field_validator("cors_origins")
@@ -68,8 +80,13 @@ class Settings(BaseSettings):
         """Require explicit HTTP origins and keep wildcard credentials impossible."""
         for origin in value:
             parsed_origin = urlparse(origin)
-            if parsed_origin.scheme not in {"http", "https"} or not parsed_origin.netloc:
-                raise ValueError("CORS_ORIGINS entries must be absolute HTTP(S) origins.")
+            if (
+                parsed_origin.scheme not in {"http", "https"}
+                or not parsed_origin.netloc
+            ):
+                raise ValueError(
+                    "CORS_ORIGINS entries must be absolute HTTP(S) origins."
+                )
         return value
 
 

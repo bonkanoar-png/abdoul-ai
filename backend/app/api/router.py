@@ -15,6 +15,7 @@ from app.api.routes.publication import router as publication_router
 from app.api.routes.skill import router as skill_router
 from app.api.routes.technology import router as technology_router
 from app.api.schemas.common import ErrorResponse
+from app.api.v1.admin.router import router as admin_router
 
 
 def build_api_router(api_prefix: str) -> APIRouter:
@@ -30,6 +31,7 @@ def build_api_router(api_prefix: str) -> APIRouter:
 
     root_router.include_router(health_router)
     for router in (
+        admin_router,
         portfolio_router,
         profile_router,
         experience_router,

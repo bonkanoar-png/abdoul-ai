@@ -37,6 +37,10 @@ def test_declarative_base_contains_portfolio_models() -> None:
         "projects",
         "publications",
         "skills",
+        "user_admins",
+        "audit_logs",
+        "media",
+        "technologies",
     }
 
 

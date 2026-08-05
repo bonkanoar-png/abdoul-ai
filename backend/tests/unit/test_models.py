@@ -17,6 +17,10 @@ def test_models_are_registered_in_metadata() -> None:
         "projects",
         "publications",
         "skills",
+        "user_admins",
+        "audit_logs",
+        "media",
+        "technologies",
     }
 
 

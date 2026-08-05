@@ -1,21 +1,71 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockAdminRepository } from "@/features/admin/services/admin-services";
+import {
+  AdminApiError,
+  createAdminApiRepository,
+  loginAdmin,
+} from "@/features/admin/services/admin-api";
 
-describe("mock admin repository", () => {
-  it("supports create, read, update and delete", async () => {
-    const repository = createMockAdminRepository("certifications");
-    const created = await repository.create({ name: "Cloud", issuer: "ACME", date: "2026-01-01", credential: "" });
-    await expect(repository.getById(created.id)).resolves.toEqual(created);
-    await expect(repository.update(created.id, { issuer: "Updated" })).resolves.toMatchObject({ issuer: "Updated" });
-    await repository.remove(created.id);
-    await expect(repository.getById(created.id)).resolves.toBeNull();
+describe("admin API repository", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
   });
-  it("keeps repository instances isolated", async () => {
-    const first = createMockAdminRepository("projects"); const second = createMockAdminRepository("projects");
-    await first.remove("project-1");
-    await expect(first.getAll()).resolves.toHaveLength(0);
-    await expect(second.getAll()).resolves.toHaveLength(1);
+
+  it("creates an experience through the API", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "00000000-0000-0000-0000-000000000001",
+          title: "ACME",
+          subtitle: "Engineer",
+          description: "Build",
+          slug: null,
+          start_date: "2026-01-01",
+          end_date: null,
+          url: null,
+          category: "CDI",
+          is_current: false,
+          is_active: true,
+          sort_order: 0,
+        }),
+        { status: 201 },
+      ),
+    );
+    const created = await createAdminApiRepository("experiences").create({
+      company: "ACME",
+      role: "Engineer",
+      contractType: "CDI",
+      location: "Paris",
+      dates: "2026-01-01",
+      description: "Build",
+      missions: [],
+      results: [],
+      technologies: [],
+      skills: [],
+    });
+    expect(created).toMatchObject({ company: "ACME", role: "Engineer" });
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/admin/experiences"),
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("surfaces an expired cookie as a 401", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: "Expired" } }), { status: 401 }),
+    );
+    await expect(createAdminApiRepository("projects").getAll()).rejects.toEqual(
+      expect.objectContaining({ status: 401 }),
+    );
+  });
+
+  it("delegates login session storage to the HttpOnly cookie", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(null, { status: 204 }));
+    await loginAdmin("admin@example.com", "long-password");
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/auth/login"),
+      expect.objectContaining({ credentials: "include" }),
+    );
+    expect(new AdminApiError(403, "Forbidden").status).toBe(403);
   });
 });
-

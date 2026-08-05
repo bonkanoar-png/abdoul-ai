@@ -6,6 +6,7 @@ Run locally with:
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.errors import register_error_handlers
 from app.api.responses import SecurityHeadersMiddleware
@@ -51,10 +52,15 @@ def create_application() -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.cors_origins,
         allow_credentials=True,
-        allow_methods=["GET", "OPTIONS"],
-        allow_headers=["Accept", "Content-Type"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Accept", "Authorization", "Content-Type"],
     )
     application.add_middleware(SecurityHeadersMiddleware)
+    application.mount(
+        settings.public_upload_base_url,
+        StaticFiles(directory=settings.upload_directory, check_dir=False),
+        name="uploads",
+    )
     install_observability(application)
 
     @application.get("/metrics", include_in_schema=False)
