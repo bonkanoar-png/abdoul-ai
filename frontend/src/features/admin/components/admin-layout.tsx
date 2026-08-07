@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { adminNavigation } from "@/features/admin/config";
+import { LogoutButton } from "@/features/admin/components/logout-button";
 
 export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -15,7 +16,31 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export function AdminHeader({ onMenu }: { onMenu: () => void }) {
-  return <header className="border-line bg-surface flex min-h-16 items-center justify-between border-b px-5 lg:px-8"><div><p className="text-xs font-bold tracking-[.16em] text-accent-strong uppercase">CMS</p><p className="font-bold">Administration</p></div><button className="border-line rounded-xl border px-3 py-2 text-sm font-semibold lg:hidden" type="button" onClick={onMenu} aria-label="Ouvrir la navigation administration">Menu</button></header>;
+  return (
+    <header className="border-line bg-surface flex min-h-16 items-center justify-between border-b px-5 lg:px-8">
+      <div>
+        <p className="text-xs font-bold tracking-[.16em] text-accent-strong uppercase">
+          CMS
+        </p>
+        <p className="font-bold">
+          Administration
+        </p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <LogoutButton />
+
+        <button
+          className="border-line rounded-xl border px-3 py-2 text-sm font-semibold lg:hidden"
+          type="button"
+          onClick={onMenu}
+          aria-label="Ouvrir la navigation administration"
+        >
+          Menu
+        </button>
+      </div>
+    </header>
+  );
 }
 
 export function AdminLayout({ children }: { children: ReactNode }) {
